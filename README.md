@@ -19,24 +19,24 @@ Project selector
 * Filtering Options:
   * Comments on Image
   * Comment rate
-Image freshness
-Classification on User 
-Admin
-Scientist
+ * Image freshness
+ * Classification on User 
+ * Admin
+ * Scientist
 
 ## Third: trending Word/hashtags which represent the most talked about strings within the comments
-List them using a ranked table (combine both hashtags and words). Stop words to be removed.
-On Click:
-Use Search API to search for similar images/
-Filter:
-All time trends
-Top rising
-Temporal slider to identify time window for trending/top words
+* List them using a ranked table (combine both hashtags and words). Stop words to be removed.
+* On Click:
+ * Use Search API to search for similar images/
+* Filter:
+ * All time trends
+ * Top rising
+ * Temporal slider to identify time window for trending/top words
 
 ## Four: research feed: shows what the researchers have been active on.
-Temporally ordered stream of events including:
-Commenting
-diff
-(and that’s it for now, folks)
+* Temporally ordered stream of events including:
+ * Commenting
+  *diff
+ * (and that’s it for now, folks)
 
 ## Five: Unanswered questions that require attention of researchers/moderators
