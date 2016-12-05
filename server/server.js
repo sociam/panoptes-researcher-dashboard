@@ -1,5 +1,5 @@
 //Author: Ramine Tinati
-//Purpose: Node server for the Citizen Engagement Dashboard
+//Purpose: Node server for the Panoptes Researcher Dashboard
 
 var app = require('http').createServer(handler);
 var io = require('socket.io')(app);
@@ -48,6 +48,10 @@ var pmDoc = new mongoose.Schema({
 
 // //INFO: These are the collections and models linked together
  var pm_Model = pm_con.model('classifications', pmDoc); 
+
+
+ var pm_Model_Talk = pm_con.model('talk', pmDoc);
+
 // // var air_pollution_Model = air_pollution_con.model('tweets_20151100', twitterDoc_pol); 
 // // var shenzhen_Model = shenzhen_con.model('tweets_20151100', twitterDoc); 
 
@@ -81,7 +85,7 @@ channelTwo.bind('comment',
 
     console.log(data)
 
-   // constructAndEmitLiveStream(data);
+    constructTalkAndEmitLiveStream(data);
 
   }
 );
@@ -134,10 +138,53 @@ function constructAndEmitLiveStream(data){
   }catch(e){
 
       //console.log(e)
+	}	
+
+
+}
+
+function constructTalkAndEmitLiveStream(data){
+
+  //here we need to construct the object to confirm to what we were used to.
+
+  var toSend = {};
+
+  try{
+
+    toSend["id"] = data.project_id;
+    toSend["board_id"] = data.board_id;
+    toSend["discussion_id"] = data.discussion_id;
+    toSend["user_id"] = 0;
+    toSend["project_id"] = data.project_id;
+    toSend["section"] = data.section;
+    toSend["subject_id"] = data.focus_id;
+    toSend["created_at"] = new Date();
+    toSend["lat"] = 0;
+    toSend["lng"] = 0;
+
+    //console.log("data")
+
+    io.emit("panoptes_talk", toSend)
+
+    //also need to send this data to the database.
+    try{
+      saveData(toSend)
+      //console.log("saving data")
+    }catch(e1){
+        //console.log(e1)
+    }
+
+  }catch(e){
+
+      //console.log(e)
 
   }
 
 }
+
+
+
+
 
 
 function saveData(obj){
@@ -157,6 +204,33 @@ function saveData(obj){
         });
             
             
+        //console.log("Added New Items: "+data);
+        //emit to real-time
+      return true;
+        }catch(e){
+          console.log(e)
+        }
+
+}
+
+
+function saveDataTalk(obj){
+
+    try{
+
+        //console.log("Data: "+obj);
+
+        var doc = new pm_Model_Talk({
+            source: "panoptes_zooniverse",
+            status: JSON.stringify(obj),
+        });
+
+        doc.save(function(err, doc) {
+        if (err) return console.error(err);
+        //console.dir(thor);
+        });
+
+
         //console.log("Added New Items: "+data);
         //emit to real-time
       return true;
