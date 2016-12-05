@@ -168,7 +168,7 @@ function constructTalkAndEmitLiveStream(data){
 
     //also need to send this data to the database.
     try{
-      saveData(toSend)
+      saveDataTalk(toSend)
       //console.log("saving data")
     }catch(e1){
         //console.log(e1)
