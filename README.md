@@ -11,14 +11,14 @@ Project selector
 
 ## Second: image visualisation for popular talked about images. Tree map which shows the image proportionate to the number of comments it has gained
 * Rollover: 
-** Not logged in, no identification of image if previously seen
-** Logged in, notifies the user seen/not seen
+  * Not logged in, no identification of image if previously seen
+  * Logged in, notifies the user seen/not seen
 * Click:
-Take them to the thread on the Zoo talk page
-Storing the event (image/resource) as a personally curated item.
-Filtering Options:
-Comments on Image
-Comment rate
+  * Take them to the thread on the Zoo talk page
+  * Storing the event (image/resource) as a personally curated item.
+* Filtering Options:
+  * Comments on Image
+  * Comment rate
 Image freshness
 Classification on User 
 Admin
