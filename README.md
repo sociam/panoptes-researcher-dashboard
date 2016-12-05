@@ -7,7 +7,7 @@ Users can access dashboard without being logged in.
 Project selector
 
 ## First: tab pane is the current number of active users, including world map
-10 minute window to calculate active users (server side)
++ 10 minute window to calculate active users (server side)
 ##Second: image visualisation for popular talked about images. Tree map which shows the image proportionate to the number of comments it has gained
 Rollover: 
 Not logged in, no identification of image if previously seen
