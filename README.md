@@ -10,10 +10,10 @@ Project selector
 + 10 minute window to calculate active users (server side)
 
 ## Second: image visualisation for popular talked about images. Tree map which shows the image proportionate to the number of comments it has gained
-Rollover: 
-Not logged in, no identification of image if previously seen
-Logged in, notifies the user seen/not seen
-Click:
++ Rollover: 
+++ Not logged in, no identification of image if previously seen
+++ Logged in, notifies the user seen/not seen
++ Click:
 Take them to the thread on the Zoo talk page
 Storing the event (image/resource) as a personally curated item.
 Filtering Options:
