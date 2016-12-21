@@ -10,7 +10,8 @@ Project selector
 * V1.0 this will privde a overview of the different visualisations/tools available to the user.
  * a drop down list of projects will be shown, selecting a project will update the streams and UI
 * V2.0 will allow users to log in and configure the panel
- * logged in users (based on privilidges will be able to communicate with other users)
+ * based on privilidges; will be able to communicate with other users
+ * Store previous investigation history. E.g. what threads they have contributed to, how they have chanced.
  
 ## First: tab pane is the current number of active users, including world map
 + 10 minute window to calculate active users (server side)
