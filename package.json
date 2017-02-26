@@ -4,10 +4,11 @@
   "description": "A dashboard of useful tools to aid researchers using the Zooniverse citizen science platform.",
   "main": "index.js",
   "engines": {
-    "node": "4.2.3"
+    "node": "7.6.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
