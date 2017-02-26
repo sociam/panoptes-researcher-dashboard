@@ -1,0 +1,28 @@
+{
+  "name": "panoptes-researcher-dashboard",
+  "version": "0.0.1",
+  "description": "A dashboard of useful tools to aid researchers using the Zooniverse citizen science platform.",
+  "main": "index.js",
+  "engines": {
+    "node": "4.2.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlienewey/panoptes-researcher-dashboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charlienewey/panoptes-researcher-dashboard/issues"
+  },
+  "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
+  "dependencies": {
+    "dateformat": "2.0.0",
+    "mongoose": "4.7.1",
+    "pusher-client": "1.1.0",
+    "socket.io": "1.7.1"
+  }
+}
