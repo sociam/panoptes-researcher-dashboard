@@ -55,14 +55,14 @@ var channel = socket.subscribe('panoptes');
 channel.bind('classification',
   function(data) {
     constructAndEmitLiveStream(data);
-  };
+  }
 );
 
 var channelTwo = socket.subscribe('talk');
 channelTwo.bind('comment',
   function(data) {
     constructTalkAndEmitLiveStream(data);
-  };
+  }
 );
 
 /*
