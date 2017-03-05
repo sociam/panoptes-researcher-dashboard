@@ -1,0 +1,32 @@
+{
+  "name": "panoptes-researcher-dashboard-frontend",
+  "version": "0.0.1",
+  "description": "Bootstrap and D3 frontend for the Panoptes Researcher Dashboard",
+  "main": "none",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "bootstrap": "3.3.7",
+    "d3": "3.5.16",
+    "d3-cloud": "1.2.4",
+    "http-server": "0.9.0",
+    "lodash": "4.5.1",
+    "socket.io": "1.7.3",
+    "topojson": "2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlienewey/panoptes-researcher-dashboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charlienewey/panoptes-researcher-dashboard/issues"
+  },
+  "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme"
+}
