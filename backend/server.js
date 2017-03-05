@@ -2,68 +2,34 @@
  * Author: Ramine Tinati
  * Purpose: Node server for Panoptes Researcher Dashboard
  */
-var app = require('http').createServer(handler);
-var io = require('socket.io')(app);
+var http = require('http');
+var socketio = require('socket.io');
 var fs = require('fs');
-//var config = require('./config');
 var dateFormat = require('dateformat');
 var mongoose = require('mongoose');
 var Pusher = require('pusher-client');
 
-/*
- * Server listening port. This must be configured correctly.
- * Find the port associated with your group and configure appropriately.
- */
-app.listen(3005);
 
 /*
  * Define connections to databases and models here.
  * If this is being run locally, the address for datasets must be:
- * var mongo_url = 'mongodb://sotonwo.cloudapp.net/';
+ * let mongo_url = 'mongodb://sotonwo.cloudapp.net/';
+ *
+ * or for production, address must be:
+ * let mongo_url = 'mongodb://woUser:webobservatory@localhost/zoo_panoptes/';
  */
-var mongo_url = 'mongodb://woUser:webobservatory@localhost/zoo_panoptes';
-var db_pm = mongoose.createConnection(mongo_url);
-db_pm.on('error', console.error.bind(console, 'connection error:'));
-db_pm.once('open', function (callback) {
-  console.log('connected to database zoo_panoptes');
-});
+let mongo_url = 'mongodb://localhost/zoo_panoptes';
+
 
 /*
  * Mongoose requires a schema for a database connection. This is then attached
  * to a collection.
  */
-var pmDoc = new mongoose.Schema({
+let pmDoc = new mongoose.Schema({
   source: String,
   status: String,
 });
 
-/*
- * Link the schemas to the collections.
- */
-var pm_Model = db_pm.model('classifications', pmDoc);
-var pm_Model_Talk = db_pm.model('talk', pmDoc);
-
-/*
- * Pusher
- * Connect using pusher-client object, then bind to channel and emit stream.
- */
-var socket = new Pusher('79e8e05ea522377ba6db', {
-  encrypted: true
-});
-
-var channel = socket.subscribe('panoptes');
-channel.bind('classification',
-  function(data) {
-    constructAndEmitLiveStream(data);
-  }
-);
-
-var channelTwo = socket.subscribe('talk');
-channelTwo.bind('comment',
-  function(data) {
-    constructTalkAndEmitLiveStream(data);
-  }
-);
 
 /*
  * Format for incoming data;
@@ -83,8 +49,8 @@ channelTwo.bind('comment',
  *   }
  * }
  */
-function constructAndEmitLiveStream(data) {
-  var toSend = {};
+function constructAndEmitLiveStream(data, io, pm_model) {
+  let toSend = {};
   try {
     toSend['id'] = data.classification_id;
     toSend['country_name'] = data.geo.country_name;
@@ -97,10 +63,9 @@ function constructAndEmitLiveStream(data) {
     toSend['lng'] = data.geo.coordinates[1]
 
     io.emit('panoptes_classifications', toSend)
-
     try {
       // send data to db
-      saveData(toSend)
+      saveData(toSend, pm_model)
     } catch(e_inner) {
       console.log(e_inner)
     }
@@ -109,8 +74,9 @@ function constructAndEmitLiveStream(data) {
   }
 }
 
-function constructTalkAndEmitLiveStream(data) {
-  var toSend = {};
+
+function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
+  let toSend = {};
   try {
     toSend['id'] = data.project_id;
     toSend['board_id'] = data.board_id;
@@ -126,7 +92,7 @@ function constructTalkAndEmitLiveStream(data) {
     io.emit('panoptes_talk', toSend)
     try {
       // send data to db
-      saveDataTalk(toSend)
+      saveDataTalk(toSend, pm_model_talk)
     } catch(e_inner) {
       console.log(e_inner);
     }
@@ -135,9 +101,10 @@ function constructTalkAndEmitLiveStream(data) {
   }
 }
 
-function saveData(obj) {
+
+function saveData(obj, pm_model) {
   try {
-    var doc = new pm_Model({
+    let doc = new pm_model({
       source: 'panoptes_zooniverse',
       status: JSON.stringify(obj),
     });
@@ -155,9 +122,9 @@ function saveData(obj) {
 }
 
 
-function saveDataTalk(obj){
+function saveDataTalk(obj, pm_model_talk){
   try {
-    var doc = new pm_Model_Talk({
+    let doc = new pm_model_talk({
       source: 'panoptes_zooniverse',
       status: JSON.stringify(obj),
     });
@@ -176,65 +143,42 @@ function saveDataTalk(obj){
 
 
 /*
- * Socket.IO
- * When a connection is established with a client, the connection port receives
- * a handshake.
- */
-io.on('connection', function (socket) {
-  // we want to automatically load the data to the client
-  socket.on('load_data', function (data) {
-    console.log('Loading Map Data');
-    loadHistoricClassificationData(socket);
-  });
-
-  /*
-   * we will then proceed to load the pollution data...
-   *
-   * socket.on('load_pollution_data', function (data) {
-   *   console.log('Socket load_pollution_data called');
-   *   //console.log('emitting filter:', filter);
-   *   loadPollutionTweets(socket);
-   * });
-   */
-});
-
-
-/*
  * Functions
  * This function retrieves ALL the pollution data in the collection and streams
  * it to the client.
  */
-function loadHistoricClassificationData(socket){
+function loadHistoricClassificationData(socket, pm_model){
   console.log('Loading Historic Classification Data Timeseries');
 
-  var toSend = [];
-  var stream = pm_Model.find().stream();
+  let toSend = [];
+  let stream = pm_model.find().stream();
   stream.on('data', function (doc) {
     // do something with the mongoose document
-    var status = JSON.parse(doc.status);
+    let status = JSON.parse(doc.status);
     toSend.push(status.created_at);
   }).on('error', function (err) {
     // handle error
   }).on('close', function () {
     // the stream is closed
     // pre-process timestamps and then send them
-    preprocessTimestamps(toSend,socket);
+    preprocessTimestamps(toSend, socket);
     toSend = [];
   });
 }
 
-function preprocessTimestamps(toSend,socket){
-  console.log('sending pre-processed timestamps as historic data');
-  var timestamp_dist = {};
-  var timeseries = [];
 
-  for (var i = 0; i < toSend.length; i++) {
-    var data = toSend[i];
-    var tstamp = Date.parse(data)
-      var timestamp = dateFormat(tstamp, 'yyyy-mm-dd hh:00:00');
+function preprocessTimestamps(toSend, socket){
+  console.log('sending pre-processed timestamps as historic data');
+  let timestamp_dist = {};
+  let timeseries = [];
+
+  for (let i = 0; i < toSend.length; i++) {
+    let data = toSend[i];
+    let tstamp = Date.parse(data)
+      let timestamp = dateFormat(tstamp, 'yyyy-mm-dd hh:00:00');
 
     if (timestamp in timestamp_dist) { // TODO: this is bad practice, fix
-      var cnt = timestamp_dist[timestamp];
+      let cnt = timestamp_dist[timestamp];
       timestamp_dist[timestamp] =cnt + 1
     } else {
       timestamp_dist[timestamp] = 1
@@ -243,6 +187,7 @@ function preprocessTimestamps(toSend,socket){
 
   socket.emit('historic_data', timestamp_dist);
 }
+
 
 /*
  * General pattern for retrieving data and sending to client...
@@ -255,9 +200,60 @@ function preprocessTimestamps(toSend,socket){
 
 
 /*
- * Miscellaneous HTTP functions
+ * "Start" function subscribes to Pusher notifications, creates, database
+ * connections, and starts the HTTP server.
  */
-function handler (req, res) {
-  res.writeHead(200);
-  res.end('');
+function start(http_port) {
+  // Create MongoDB connections
+  let db_pm = mongoose.createConnection(mongo_url);
+  db_pm.on('error', console.error.bind(console, 'connection error:'));
+  db_pm.once('open', function (callback) {
+    console.log('connected to database zoo_panoptes');
+  });
+
+  // Link schemas to MongoDB collections
+  let pm_model = db_pm.model('classifications', pmDoc);
+  let pm_model_talk = db_pm.model('talk', pmDoc);
+
+  // Create HTTP handler/HTTP server stuff
+  let handler = function (req, res) {
+    res.writeHead(200);
+    res.end('There is nothing here on page \'/\'.');
+  }
+
+  // Server listening port is 3005. *Must* be configured correctly.
+  let app = http.createServer(handler);
+  app.listen(http_port);
+
+  // Socket.IO
+  let io = socketio(app);
+  io.on('connection', function (socket) {
+    // we want to automatically load the data to the client
+    socket.on('load_data', function (data) {
+      console.log('Loading Map Data');
+      loadHistoricClassificationData(socket);
+    });
+  });
+
+  // Create Pusher socket
+  let socket = new Pusher('79e8e05ea522377ba6db', {
+    encrypted: true
+  });
+
+  // Subscribe to Pusher channels
+  let channel = socket.subscribe('panoptes');
+  channel.bind('classification',
+    function(data) {
+      constructAndEmitLiveStream(data, io, pm_model);
+    }
+  );
+
+  let channelTwo = socket.subscribe('talk');
+  channelTwo.bind('comment',
+    function(data) {
+      constructTalkAndEmitLiveStream(data, io, pm_model_talk);
+    }
+  );
 }
+
+module.exports.start = start;

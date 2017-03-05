@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node backend/server.js"
+    "start": "node ./run.js"
   },
   "repository": {
     "type": "git",
@@ -21,9 +21,11 @@
   },
   "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
   "dependencies": {
+    "connect": "3.6.0",
     "dateformat": "2.0.0",
     "mongoose": "4.7.1",
     "pusher-client": "1.1.0",
+    "serve-static": "1.12.1",
     "socket.io": "1.7.1"
   }
 }
