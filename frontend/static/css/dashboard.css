@@ -176,10 +176,10 @@ grow {
     border-radius: 8px;
 }
 
-grow:hover { transform: skewX(45deg); } 
+grow:hover { transform: skewX(45deg); }
 
 /* Leaflet.JS */
 #map {
-    width: 70vw;
-    height: 70vh;
+    width: 50vw;
+    height: 50vh;
 }
