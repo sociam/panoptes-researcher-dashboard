@@ -22,6 +22,7 @@
   "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
   "dependencies": {
     "dateformat": "2.0.0",
+    "finalhandler": "1.0.0",
     "mongoose": "4.7.1",
     "pusher-client": "1.1.0",
     "serve-index": "1.8.0",
