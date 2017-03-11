@@ -78,7 +78,6 @@ function constructAndEmitLiveStream(data, io, pm_model) {
 
 
 function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
-  console.log(data);
   let toSend = {};
   try {
     toSend['id'] = data.project_id;
