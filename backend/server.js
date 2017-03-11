@@ -55,12 +55,14 @@ function constructAndEmitLiveStream(data, io, pm_model) {
     toSend['id'] = data.classification_id;
     toSend['country_name'] = data.geo.country_name;
     toSend['country_code'] = data.geo.country_code;
-    toSend['user_id'] = data.user_id
-    toSend['project_id'] = data.project_id
-    toSend['subjects'] = data.classification_id
-    toSend['created_at'] = new Date().toISOString()
-    toSend['lat'] = data.geo.coordinates[0]
-    toSend['lng'] = data.geo.coordinates[1]
+    toSend['user_id'] = data.user_id;
+    toSend['project_id'] = data.project_id;
+    toSend['subjects'] = data.classification_id;
+    toSend['created_at'] = new Date().toISOString();
+    toSend['lat'] = data.geo.latitude;
+    toSend['lng'] = data.geo.longitude;
+    toSend['country'] = data.geo.country_name;
+    toSend['city'] = data.geo.city_name;
 
     io.emit('panoptes_classifications', toSend)
     try {
@@ -76,20 +78,24 @@ function constructAndEmitLiveStream(data, io, pm_model) {
 
 
 function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
+  console.log(data);
   let toSend = {};
   try {
     toSend['id'] = data.project_id;
     toSend['board_id'] = data.board_id;
     toSend['discussion_id'] = data.discussion_id;
-    toSend['user_id'] = 0;
+    toSend['user_id'] = data.user_id;
     toSend['project_id'] = data.project_id;
     toSend['section'] = data.section;
     toSend['subject_id'] = data.focus_id;
     toSend['created_at'] = new Date();
-    toSend['lat'] = 0;
-    toSend['lng'] = 0;
+    toSend['lat'] = data.geo.latitude;
+    toSend['lng'] = data.geo.longitude;
+    toSend['country'] = data.geo.country_name;
+    toSend['city'] = data.geo.city_name;
+    toSend['body'] = data.body;
 
-    io.emit('panoptes_talk', toSend)
+    io.emit('panoptes_talk', toSend);
     try {
       // send data to db
       saveDataTalk(toSend, pm_model_talk)
@@ -97,7 +103,7 @@ function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
       console.log(e_inner);
     }
   } catch(e_outer) {
-    console.log(e_outer)
+    console.log(e_outer);
   }
 }
 
@@ -117,7 +123,7 @@ function saveData(obj, pm_model) {
 
     return true;
   } catch(e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
@@ -137,7 +143,7 @@ function saveDataTalk(obj, pm_model_talk){
 
     return true;
   } catch(e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
