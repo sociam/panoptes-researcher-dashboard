@@ -124,7 +124,7 @@ socket.on('userData', function(userData) {
 socket.on('panoptes_classifications', function(userData) {
   // Define Leaflet map icon style for new classifications
   let classificationIcon = makeIcon('static/images/classification-icon.svg');
-  addMarker(userData, classificationIcon, MARKER_TIMEOUT_MILLIS);
+  addMarker(userData, classificationIcon, MARKER_TIMEOUT_MILLIS, markers);
 });
 
 socket.on('panoptes_talk', function(userData) {
@@ -146,8 +146,14 @@ function makeIcon(imagePath) {
   });
 }
 
-function addMarker(data, icon, timeout) {
-  let marker = newMarker(data, icon).addTo(map);
+function addMarker(data, icon, timeout, group) {
+  let marker = newMarker(data, icon)
+
+  if (group !== undefined) {
+    group.addLayer(marker);
+  } else {
+    marker.addTo(map);
+  }
 
   if (timeout !== undefined) {
     setTimeout(function () {
@@ -174,11 +180,14 @@ function newMarker(data, icon) {
 
 var mapCenter = [25, 0];
 var map = L.map('map', {
-  minZoom: 2,
-  maxZoom: 6,
+  minZoom: 1,
+  maxZoom: 12,
   zoom: 2,
   center: mapCenter
 });
+
+var markers = L.markerClusterGroup();
+map.addLayer(markers);
 
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
