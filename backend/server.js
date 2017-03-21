@@ -93,6 +93,7 @@ function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
     toSend['country'] = data.geo.country_name;
     toSend['city'] = data.geo.city_name;
     toSend['body'] = data.body;
+    toSend['url'] = data.url;
 
     io.emit('panoptes_talk', toSend);
     try {

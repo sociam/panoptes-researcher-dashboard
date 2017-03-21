@@ -26,7 +26,8 @@ function addComment(data) {
               <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
             </div>
           <div class="panel-body">
-            ${data.body}
+            <p>${data.body}</p>
+            <a class="small text-muted pull-right" href="${data.url}" target="_blank">(Link to thread)</a>
           </div>
         </div>
       </div>
