@@ -2,28 +2,39 @@
  * Constants
  */
 MARKER_TIMEOUT_MILLIS = 5 * 60 * 1000;  // 5 minutes
-COMMENT_TIMEOUT_MILLIS = 5 * 60 * 1000; // 5 minutes
 
 /*
- * Callback functions
+ * Render each comment data object
  */
-function addComment(data) {
-  $('#comment-box').prepend(function () {
-  let elem = document.createElement('div');
+function addComment(parent_elem, data) {
+  if (data.thumbnail) {
+    img_url = data.thumbnail;
+  } else {
+    img_url = 'static/images/avatar-small.png';
+  }
 
-  elem.innerHTML = `
+  if (data.login) {
+    profile_url = `https://www.zooniverse.org/users/${data.login}`;
+  } else {
+    profile_url = '#';
+  }
+
+  $(parent_elem).prepend(function () {
+    let elem = document.createElement('div');
+
+    elem.innerHTML = `
     <div class="row">
       <div class="col-sm-10">
         <div class="col-sm-1">
           <div class="thumbnail">
-            <img class="img-responsive user-photo" src="static/images/avatar-small.png">
+            <img class="img-responsive user-photo" src="${img_url}">
           </div>
         </div>
         <div class="col-sm-10">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <strong>${data.user_id}</strong>
-              <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
+              <strong><a href="${profile_url}" target="_blank">${data.username}</a></strong>
+              <span class="text-muted pull-right">Posted on: ${data.timestamp}</span>
             </div>
           <div class="panel-body">
             <p>${data.body}</p>
@@ -32,10 +43,6 @@ function addComment(data) {
         </div>
       </div>
     </div>`;
-
-    setTimeout(function () {
-      elem.parentNode.removeChild(elem);
-    }, COMMENT_TIMEOUT_MILLIS);
 
     return elem;
   });
@@ -70,8 +77,16 @@ socket.on('panoptes_classifications', function(userData) {
 socket.on('panoptes_talk', function(userData) {
   // Define Leaflet map icon style for new talk
   let talkIcon = makeIcon('static/images/talk-icon.svg');
-  addMarker(userData, talkIcon, MARKER_TIMEOUT_MILLIS);
-  addComment(userData);
+
+  addMarker(userData.latest, talkIcon, MARKER_TIMEOUT_MILLIS);
+
+  // clear previous comments, render new ones
+  let parent_id = '#comment-box';
+  $(parent_id).empty();
+
+  for (let i = 0; i < userData.recent.length; i += 1) {
+    addComment(parent_id, userData.recent[i]);
+  }
 });
 
 /*

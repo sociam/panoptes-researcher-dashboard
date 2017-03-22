@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./run.js"
+    "start": "NODE_ENV=\"production\" node ./run.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "dateformat": "^2.0.0",
     "finalhandler": "^1.0.0",
     "mongoose": "^4.7.1",
+    "panoptes-client": "^2.5.2",
     "pusher-client": "^1.1.0",
     "serve-index": "^1.8.0",
     "serve-static": "^1.12.1",

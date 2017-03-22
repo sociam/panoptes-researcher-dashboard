@@ -8,6 +8,14 @@ var fs = require('fs');
 var dateFormat = require('dateformat');
 var mongoose = require('mongoose');
 var Pusher = require('pusher-client');
+var panoptesAPI = require('panoptes-client/lib/api-client');
+
+
+/*
+ * Keep track of the n most recent comments. Update and broadcast the list.
+ */
+var MAX_RECENT_COMMENTS_LENGTH = 25;
+var recent_comments = [];
 
 
 /*
@@ -32,6 +40,53 @@ let pmDoc = new mongoose.Schema({
 
 
 /*
+ * Store comment and user information in a list
+ */
+function updateRecentComments(list, data, io) {
+  findPanoptesUserByID(data, function (users) {
+    let user = users[0];
+    list.push({
+      timestamp: data.created_at,
+      login: user.login,
+      username: user.display_name,
+      url: data.url,
+      thumbnail: user.avatar_src,
+      body: data.body
+    });
+
+    if (list.length > MAX_RECENT_COMMENTS_LENGTH) {
+      list.shift();
+    }
+
+    io.emit('panoptes_talk', {
+      latest: data,
+      recent: recent_comments
+    });
+  });
+}
+
+function findPanoptesUserByID(data, callback) {
+  let id = data.id;
+
+  try {
+    panoptesAPI.type('users').get({id: id}).then(callback);
+  } catch(e) {
+    console.log(e);
+    user = {
+      name: 'Unknown User',
+      thumbnail: null
+    };
+
+    callback(user);
+  }
+}
+
+
+/*
+ * Store geographic information in a list
+ */
+
+/*
  * Format for incoming data;
  *
  * {
@@ -49,7 +104,7 @@ let pmDoc = new mongoose.Schema({
  *   }
  * }
  */
-function constructAndEmitLiveStream(data, io, pm_model) {
+function emitClassifications(data, io, pm_model) {
   let toSend = {};
   try {
     toSend['id'] = data.classification_id;
@@ -64,9 +119,10 @@ function constructAndEmitLiveStream(data, io, pm_model) {
     toSend['country'] = data.geo.country_name;
     toSend['city'] = data.geo.city_name;
 
-    io.emit('panoptes_classifications', toSend)
+    io.emit('panoptes_classifications', toSend);
+
+    // send data to db
     try {
-      // send data to db
       saveData(toSend, pm_model)
     } catch(e_inner) {
       console.log(e_inner)
@@ -77,7 +133,7 @@ function constructAndEmitLiveStream(data, io, pm_model) {
 }
 
 
-function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
+function emitComments(data, io, pm_model_talk) {
   let toSend = {};
   try {
     toSend['id'] = data.project_id;
@@ -95,9 +151,11 @@ function constructTalkAndEmitLiveStream(data, io, pm_model_talk) {
     toSend['body'] = data.body;
     toSend['url'] = data.url;
 
-    io.emit('panoptes_talk', toSend);
+    // update recent comments, emit to bound clients
+    updateRecentComments(recent_comments, toSend, io);
+
+    // save to database
     try {
-      // send data to db
       saveDataTalk(toSend, pm_model_talk)
     } catch(e_inner) {
       console.log(e_inner);
@@ -247,17 +305,17 @@ function start(http_port) {
   });
 
   // Subscribe to Pusher channels
-  let channel = socket.subscribe('panoptes');
-  channel.bind('classification',
+  let classificationEvents = socket.subscribe('panoptes');
+  classificationEvents.bind('classification',
     function(data) {
-      constructAndEmitLiveStream(data, io, pm_model);
+      emitClassifications(data, io, pm_model);
     }
   );
 
-  let channelTwo = socket.subscribe('talk');
-  channelTwo.bind('comment',
+  let commentEvents = socket.subscribe('talk');
+  commentEvents.bind('comment',
     function(data) {
-      constructTalkAndEmitLiveStream(data, io, pm_model_talk);
+      emitComments(data, io, pm_model_talk);
     }
   );
 }
