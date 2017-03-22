@@ -14,7 +14,7 @@ var panoptesAPI = require('panoptes-client/lib/api-client');
 /*
  * Keep track of the n most recent comments. Update and broadcast the list.
  */
-var MAX_RECENT_COMMENTS_LENGTH = 25;
+var MAX_RECENT_COMMENTS_LENGTH = 15;
 var recent_comments = [];
 
 
