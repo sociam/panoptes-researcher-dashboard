@@ -1,6 +1,3 @@
-/*
- * Constants
- */
 MARKER_TIMEOUT_MILLIS = 5 * 60 * 1000;  // 5 minutes
 
 /*
@@ -14,7 +11,7 @@ function addComment(parent_elem, data) {
   }
 
   if (data.login) {
-    profile_url = `https://www.zooniverse.org/users/${data.login}`;
+    profile_url = 'https://www.zooniverse.org/users/' + data.login;
   } else {
     profile_url = '#';
   }
@@ -22,6 +19,7 @@ function addComment(parent_elem, data) {
   $(parent_elem).prepend(function () {
     let elem = document.createElement('div');
 
+    // ES6 template string
     elem.innerHTML = `
     <div class="row">
       <div class="col-sm-10">
