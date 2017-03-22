@@ -66,8 +66,7 @@ function updateRecentComments(list, data, io) {
 }
 
 function findPanoptesUserByID(data, callback) {
-  let id = data.id;
-
+  let id = data.user_id;
   try {
     panoptesAPI.type('users').get({id: id}).then(callback);
   } catch(e) {
@@ -76,7 +75,6 @@ function findPanoptesUserByID(data, callback) {
       name: 'Unknown User',
       thumbnail: null
     };
-
     callback(user);
   }
 }
@@ -107,11 +105,11 @@ function findPanoptesUserByID(data, callback) {
 function emitClassifications(data, io, pm_model) {
   let toSend = {};
   try {
-    toSend['id'] = data.classification_id;
+    toSend['id'] = data.project_id;
+    toSend['classification_id'] = data.classification_id;
     toSend['country_name'] = data.geo.country_name;
     toSend['country_code'] = data.geo.country_code;
     toSend['user_id'] = data.user_id;
-    toSend['project_id'] = data.project_id;
     toSend['subjects'] = data.classification_id;
     toSend['created_at'] = new Date().toISOString();
     toSend['lat'] = data.geo.latitude;
@@ -140,7 +138,6 @@ function emitComments(data, io, pm_model_talk) {
     toSend['board_id'] = data.board_id;
     toSend['discussion_id'] = data.discussion_id;
     toSend['user_id'] = data.user_id;
-    toSend['project_id'] = data.project_id;
     toSend['section'] = data.section;
     toSend['subject_id'] = data.focus_id;
     toSend['created_at'] = new Date();
