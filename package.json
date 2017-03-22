@@ -10,6 +10,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=\"production\" node ./run.js"
   },
+  "config": {
+    "frontend": {
+       "port": 8080,
+       "static_path": "./frontend"
+    },
+    "backend": {
+      "port": 3005
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/charlienewey/panoptes-researcher-dashboard.git"
