@@ -2,33 +2,30 @@
  * Panoptes Researcher Dashboard run script
  * This (compvarely ugly and horrible) script
  */
-var finalHandler = require('finalhandler');
-var http = require('http')
-var serveIndex = require('serve-index');
-var serveStatic = require('serve-static');
-var env = process.env;
+var express = require('express');
+var http = require('http');
+var io = require('socket.io');
 
+var env = process.env;
+var app = express();
+var httpServer = require('http').Server(app);
+var io = require('socket.io').listen(httpServer);
 
 // Create and kick off backend server
 console.log('Kicking off backend server...');
 var backend = require('./backend/server.js');
-backend.start(env.npm_package_config_backend_port);
+backend.start(io);
 
 // Create and kick off front-end server
 console.log('Kicking off frontend server...');
 var opts = {'dotfiles': 'ignore'};
 
-var _static = serveStatic(env.npm_package_config_frontend_static_path);
-var _index = serveIndex(env.npm_package_config_frontend_static_path);
-
-var srv = http.createServer(function onRequest(req, res) {
-  let done = finalHandler(req, res);
-  _static(req, res, function onNext(err) {
-    if (err) {
-      console.log(err);
-    }
-    _index(req, res, done);
-  });
+var staticPath = __dirname + env.npm_package_config_static_path;
+app.use('/node_modules', express.static(staticPath));
+app.use('/static', express.static(__dirname + '/frontend/static'));
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/frontend/active-users.html');
 });
 
-srv.listen(env.npm_package_config_frontend_port);
+// Set listening port for HTTP server
+httpServer.listen(env.npm_package_config_port);

@@ -2,7 +2,7 @@
  * Author: Ramine Tinati
  * Purpose: Node server for Panoptes Researcher Dashboard
  */
-var http = require('http');
+var express = require('express');
 var socketio = require('socket.io');
 var fs = require('fs');
 var dateFormat = require('dateformat');
@@ -264,7 +264,7 @@ function preprocessTimestamps(toSend, socket){
  * "Start" function subscribes to Pusher notifications, creates, database
  * connections, and starts the HTTP server.
  */
-function start(http_port) {
+function start(io) {
   // Create MongoDB connections
   let db_pm = mongoose.createConnection(mongo_url);
   db_pm.on('error', console.error.bind(console, 'connection error:'));
@@ -276,18 +276,7 @@ function start(http_port) {
   let pm_model = db_pm.model('classifications', pmDoc);
   let pm_model_talk = db_pm.model('talk', pmDoc);
 
-  // Create HTTP handler/HTTP server stuff
-  let handler = function (req, res) {
-    res.writeHead(200);
-    res.end('There is nothing here on page \'/\'.');
-  }
-
-  // Server listening port is 3005. *Must* be configured correctly.
-  let app = http.createServer(handler);
-  app.listen(http_port);
-
   // Socket.IO
-  let io = socketio(app);
   io.on('connection', function (socket) {
     // we want to automatically load the data to the client
     socket.on('load_data', function (data) {

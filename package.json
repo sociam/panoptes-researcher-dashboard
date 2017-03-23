@@ -11,13 +11,8 @@
     "start": "NODE_ENV=\"production\" node ./run.js"
   },
   "config": {
-    "frontend": {
-       "port": 8080,
-       "static_path": "./frontend"
-    },
-    "backend": {
-      "port": 3005
-    }
+    "port": 8080,
+    "static_path": "/frontend/node_modules"
   },
   "repository": {
     "type": "git",
@@ -31,6 +26,7 @@
   "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
   "dependencies": {
     "dateformat": "^2.0.0",
+    "express": "^4.15.2",
     "finalhandler": "^1.0.0",
     "mongoose": "^4.7.1",
     "panoptes-client": "^2.5.2",

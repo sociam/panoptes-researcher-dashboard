@@ -46,13 +46,9 @@ function addComment(parent_elem, data) {
   });
 }
 
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 var commentsOrderByDate = [];
 var usersOrderByDate = [];
-var socket = io.connect('http://localhost:3005');
+var socket = io.connect('//');
 socket.on('userData', function(userData) {
   // classifications within the last ten minutes (blue)
   usersOrderByDate = userData; // copy userData into a sortable array
@@ -143,5 +139,5 @@ var markers = L.markerClusterGroup();
 map.addLayer(markers);
 
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+  attribution: '&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
