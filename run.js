@@ -27,7 +27,8 @@ backend.start(io);
 
 // Create and kick off front-end server
 console.log('Kicking off frontend server...');
-app.use('/modules', express.static(env.npm_package_config_static_path));
+var staticPath = __dirname.concat(env.npm_package_config_static_path);
+app.use('/modules', express.static(staticPath));
 app.use('/static', express.static(__dirname + '/frontend/static'));
 app.get('/', function (req, res) {
   res.render('active-users.njk', {
