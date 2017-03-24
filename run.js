@@ -21,7 +21,7 @@ console.log('Kicking off frontend server...');
 var opts = {'dotfiles': 'ignore'};
 
 var staticPath = __dirname + env.npm_package_config_static_path;
-app.use('/node_modules', express.static(staticPath));
+app.use('/modules', express.static(staticPath));
 app.use('/static', express.static(__dirname + '/frontend/static'));
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/frontend/active-users.html');
