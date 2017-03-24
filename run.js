@@ -1,15 +1,24 @@
 /**
  * Panoptes Researcher Dashboard run script
- * This (compvarely ugly and horrible) script
+ * Run by invoking 'npm start'
  */
 var express = require('express');
-var http = require('http');
-var io = require('socket.io');
-
-var env = process.env;
 var app = express();
 var httpServer = require('http').Server(app);
 var io = require('socket.io').listen(httpServer);
+var env = process.env;
+
+// Set up the templating engine
+var njk = require('nunjucks');
+njk.configure({
+  autoescape: true,
+  watch: true
+});
+
+var njkEnv = new njk.Environment(
+  new njk.FileSystemLoader('frontend/templates')
+);
+njkEnv.express(app);
 
 // Create and kick off backend server
 console.log('Kicking off backend server...');
@@ -18,13 +27,12 @@ backend.start(io);
 
 // Create and kick off front-end server
 console.log('Kicking off frontend server...');
-var opts = {'dotfiles': 'ignore'};
-
-var staticPath = __dirname + env.npm_package_config_static_path;
-app.use('/modules', express.static(staticPath));
+app.use('/modules', express.static(env.npm_package_config_static_path));
 app.use('/static', express.static(__dirname + '/frontend/static'));
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/frontend/active-users.html');
+  res.render('active-users.njk', {
+    title: 'Active Users Live Feed'
+  });
 });
 
 // Set listening port for HTTP server

@@ -28,14 +28,12 @@
     "bootstrap": "^3.3.7",
     "dateformat": "^2.0.0",
     "express": "^4.15.2",
-    "finalhandler": "^1.0.0",
     "leaflet": "^1.0.3",
     "leaflet.markercluster": "^1.0.4",
     "mongoose": "^4.7.1",
+    "nunjucks": "^3.0.0",
     "panoptes-client": "^2.5.2",
     "pusher-client": "^1.1.0",
-    "serve-index": "^1.8.0",
-    "serve-static": "^1.12.1",
     "socket.io": "^1.7.1"
   }
 }
