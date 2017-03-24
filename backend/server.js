@@ -33,9 +33,40 @@ let mongo_url = 'mongodb://localhost/zoo_panoptes';
  * Mongoose requires a schema for a database connection. This is then attached
  * to a collection.
  */
-let pmDoc = new mongoose.Schema({
+let classificationSchema = new mongoose.Schema({
   source: String,
-  status: String,
+  status: {
+    classification_id: Number,
+    project_id: Number,
+    workflow_id: Number,
+    board_id: Number,
+    user_id: Number,
+    subject_ids: [Number],
+    geo: {
+      country_name: String,
+      country_code: String,
+      city_name: String,
+      coordinates: [Number],
+      latitude: Number,
+      longitude: Number
+    }
+  }
+});
+
+let talkSchema = new mongoose.Schema({
+  source: String,
+  status: {
+    id: Number,
+    board_id: Number,
+    discussion_id: Number,
+    user_id: Number,
+    project_id: Number,
+    section: String,
+    subject_id: Number,
+    created_at: String,
+    lat: Number,
+    lng: Number
+  }
 });
 
 
@@ -102,7 +133,7 @@ function findPanoptesUserByID(data, callback) {
  *   }
  * }
  */
-function emitClassifications(data, io, pm_model) {
+function emitClassifications(data, io, classificationModel) {
   let toSend = {};
   try {
     toSend['id'] = data.project_id;
@@ -121,7 +152,7 @@ function emitClassifications(data, io, pm_model) {
 
     // send data to db
     try {
-      saveData(toSend, pm_model)
+      saveClassificationData(data, classificationModel)
     } catch(e_inner) {
       console.log(e_inner)
     }
@@ -131,7 +162,7 @@ function emitClassifications(data, io, pm_model) {
 }
 
 
-function emitComments(data, io, pm_model_talk) {
+function emitComments(data, io, talkModel) {
   let toSend = {};
   try {
     toSend['id'] = data.project_id;
@@ -153,7 +184,7 @@ function emitComments(data, io, pm_model_talk) {
 
     // save to database
     try {
-      saveDataTalk(toSend, pm_model_talk)
+      saveTalkData(data, talkModel);
     } catch(e_inner) {
       console.log(e_inner);
     }
@@ -163,11 +194,11 @@ function emitComments(data, io, pm_model_talk) {
 }
 
 
-function saveData(obj, pm_model) {
+function saveClassificationData(obj, classificationModel) {
   try {
-    let doc = new pm_model({
+    let doc = new classificationModel({
       source: 'panoptes_zooniverse',
-      status: JSON.stringify(obj),
+      status: obj,
     });
 
     doc.save(function(err, doc) {
@@ -183,11 +214,11 @@ function saveData(obj, pm_model) {
 }
 
 
-function saveDataTalk(obj, pm_model_talk){
+function saveTalkData(obj, talkModel){
   try {
-    let doc = new pm_model_talk({
+    let doc = new talkModel({
       source: 'panoptes_zooniverse',
-      status: JSON.stringify(obj),
+      status: obj,
     });
 
     doc.save(function(err, doc) {
@@ -208,11 +239,11 @@ function saveDataTalk(obj, pm_model_talk){
  * This function retrieves ALL the pollution data in the collection and streams
  * it to the client.
  */
-function loadHistoricClassificationData(socket, pm_model){
+function loadHistoricClassificationData(socket, classificationModel){
   console.log('Loading Historic Classification Data Timeseries');
 
   let toSend = [];
-  let stream = pm_model.find().stream();
+  let stream = classificationModel.find().stream();
   stream.on('data', function (doc) {
     // do something with the mongoose document
     let status = JSON.parse(doc.status);
@@ -266,24 +297,15 @@ function preprocessTimestamps(toSend, socket){
  */
 function start(io) {
   // Create MongoDB connections
-  let db_pm = mongoose.createConnection(mongo_url);
-  db_pm.on('error', console.error.bind(console, 'connection error:'));
-  db_pm.once('open', function (callback) {
+  let db = mongoose.createConnection(mongo_url);
+  db.on('error', console.error.bind(console, 'connection error:'));
+  db.once('open', function (callback) {
     console.log('connected to database zoo_panoptes');
   });
 
   // Link schemas to MongoDB collections
-  let pm_model = db_pm.model('classifications', pmDoc);
-  let pm_model_talk = db_pm.model('talk', pmDoc);
-
-  // Socket.IO
-  io.on('connection', function (socket) {
-    // we want to automatically load the data to the client
-    socket.on('load_data', function (data) {
-      console.log('Loading Map Data');
-      loadHistoricClassificationData(socket);
-    });
-  });
+  let classificationModel = db.model('classifications', classificationSchema);
+  let talkModel = db.model('talk', talkSchema);
 
   // Create Pusher socket
   let socket = new Pusher('79e8e05ea522377ba6db', {
@@ -294,14 +316,14 @@ function start(io) {
   let classificationEvents = socket.subscribe('panoptes');
   classificationEvents.bind('classification',
     function(data) {
-      emitClassifications(data, io, pm_model);
+      emitClassifications(data, io, classificationModel);
     }
   );
 
   let commentEvents = socket.subscribe('talk');
   commentEvents.bind('comment',
     function(data) {
-      emitComments(data, io, pm_model_talk);
+      emitComments(data, io, talkModel);
     }
   );
 }
