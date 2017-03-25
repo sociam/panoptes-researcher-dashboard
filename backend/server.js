@@ -36,15 +36,9 @@ let mongo_url = 'mongodb://localhost/zoo_panoptes';
 let classificationSchema = new mongoose.Schema({
   source: String,
   status: {
-    classification_id: Number,
-    project_id: Number,
-    workflow_id: Number,
     board_id: Number,
-    user_id: Number,
-    subject_ids: [Number],
-    subject_urls: [{
-      'image/jpeg': String
-    }],
+    classification_id: Number,
+    created_at: Date,
     geo: {
       country_name: String,
       country_code: String,
@@ -52,23 +46,30 @@ let classificationSchema = new mongoose.Schema({
       coordinates: [Number],
       latitude: Number,
       longitude: Number
-    }
+    },
+    project_id: Number,
+    subject_ids: [Number],
+    subject_urls: [{
+      'image/jpeg': String
+    }],
+    user_id: Number,
+    workflow_id: Number
   }
 });
 
 let talkSchema = new mongoose.Schema({
   source: String,
   status: {
-    id: Number,
     board_id: Number,
+    created_at: Date,
     discussion_id: Number,
-    user_id: Number,
+    id: Number,
+    lat: Number,
+    lng: Number,
     project_id: Number,
     section: String,
     subject_id: Number,
-    created_at: Date,
-    lat: Number,
-    lng: Number
+    user_id: Number
   }
 });
 
@@ -140,17 +141,17 @@ function findPanoptesUserByID(data, callback) {
 function emitClassifications(data, io, classificationModel) {
   let toSend = {};
   try {
-    toSend['id'] = data.project_id;
+    toSend['city'] = data.geo.city_name;
     toSend['classification_id'] = data.classification_id;
-    toSend['country_name'] = data.geo.country_name;
+    toSend['country'] = data.geo.country_name;
     toSend['country_code'] = data.geo.country_code;
-    toSend['user_id'] = data.user_id;
-    toSend['subjects'] = data.classification_id;
+    toSend['country_name'] = data.geo.country_name;
     toSend['created_at'] = new Date().toISOString();
+    toSend['id'] = data.project_id;
     toSend['lat'] = data.geo.latitude;
     toSend['lng'] = data.geo.longitude;
-    toSend['country'] = data.geo.country_name;
-    toSend['city'] = data.geo.city_name;
+    toSend['subjects'] = data.classification_id;
+    toSend['user_id'] = data.user_id;
 
     io.emit('panoptes_classifications', toSend);
 
@@ -169,19 +170,19 @@ function emitClassifications(data, io, classificationModel) {
 function emitComments(data, io, talkModel) {
   let toSend = {};
   try {
-    toSend['id'] = data.project_id;
     toSend['board_id'] = data.board_id;
-    toSend['discussion_id'] = data.discussion_id;
-    toSend['user_id'] = data.user_id;
-    toSend['section'] = data.section;
-    toSend['subject_id'] = data.focus_id;
+    toSend['body'] = data.body;
+    toSend['city'] = data.geo.city_name;
+    toSend['country'] = data.geo.country_name;
     toSend['created_at'] = new Date();
+    toSend['discussion_id'] = data.discussion_id;
+    toSend['id'] = data.project_id;
     toSend['lat'] = data.geo.latitude;
     toSend['lng'] = data.geo.longitude;
-    toSend['country'] = data.geo.country_name;
-    toSend['city'] = data.geo.city_name;
-    toSend['body'] = data.body;
+    toSend['section'] = data.section;
+    toSend['subject_id'] = data.focus_id;
     toSend['url'] = data.url;
+    toSend['user_id'] = data.user_id;
 
     // update recent comments, emit to bound clients
     updateRecentComments(recent_comments, toSend, io);
