@@ -25,7 +25,9 @@ function addComment(parent_elem, data) {
       <div class="col-sm-10">
         <div class="col-sm-1">
           <div class="thumbnail">
-            <img class="img-responsive user-photo" src="${img_url}">
+            <a href="${profile_url}" target="_blank">
+              <img class="img-responsive user-photo" src="${img_url}">
+            </a>
           </div>
         </div>
         <div class="col-sm-10">
