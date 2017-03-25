@@ -5,36 +5,44 @@
 var express = require('express');
 var app = express();
 var httpServer = require('http').Server(app);
-var io = require('socket.io').listen(httpServer);
+var mongoose = require('mongoose');
 var env = process.env;
 
-// Set up the templating engine
-var njk = require('nunjucks');
-njk.configure({
-  autoescape: true,
-  watch: true
-});
+// stop stupid mongoose warnings
+mongoose.Promise = global.Promise;
 
-var njkEnv = new njk.Environment(
-  new njk.FileSystemLoader('frontend/templates')
-);
-njkEnv.express(app);
+// Fetch configuration variables from package.json, or use sensible defaults
+let makePath = (p) => __dirname + '/' + p;
+let httpPort = env.npm_package_config_port || 8080;
+let mongo = {
+  'host': env.npm_package_config_mongo_host || 'localhost',
+  'db': env.npm_package_config_mongo_db || 'zoo_panoptes'
+};
+let mongoURL = 'mongodb://' + mongo.host + '/' + mongo.db;
+let paths = {
+  'module': makePath(env.npm_package_config_paths_modules || 'node_modules'),
+  'static': makePath(env.npm_package_config_paths_static || 'frontend/static'),
+  'templates': makePath(env.npm_package_config_paths_templates || 'frontend/templates')
+};
+let pusherSocket = env.npm_package_pusher_socket || '79e8e05ea522377ba6db';
 
-// Create and kick off backend server
-console.log('Kicking off backend server...');
-var backend = require('./backend/server.js');
-backend.start(io);
+// Create MongoDB connection
+let db = mongoose.createConnection(mongoURL);
 
-// Create and kick off front-end server
-console.log('Kicking off frontend server...');
-var staticPath = __dirname.concat(env.npm_package_config_static_path);
-app.use('/modules', express.static(staticPath));
-app.use('/static', express.static(__dirname + '/frontend/static'));
-app.get('/', function (req, res) {
-  res.render('active-users.njk', {
-    title: 'Active Users Live Feed'
-  });
-});
+// Create and kick off data service
+console.log('Kicking off data service...');
+var dataService = require('./backend/data-service.js');
+dataService.start(db, mongo, pusherSocket);
+
+// Create and kick off API service
+console.log('Kicking off API service...');
+var apiService = require('./backend/api-service.js');
+apiService.start(db, app);
+
+// Create and kick off web service
+console.log('Kicking off web service...');
+var webService = require('./backend/web-service.js');
+webService.start(app, paths);
 
 // Set listening port for HTTP server
-httpServer.listen(env.npm_package_config_port);
+httpServer.listen(httpPort);

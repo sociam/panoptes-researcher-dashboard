@@ -12,7 +12,16 @@
   },
   "config": {
     "port": 8080,
-    "static_path": "/node_modules"
+    "paths": {
+      "modules": "node_modules",
+      "static": "frontend/static",
+      "templates": "frontend/templates"
+    },
+    "mongo": {
+      "host": "localhost",
+      "db": "zoo_panoptes"
+    },
+    "pusher_socket": "79e8e05ea522377ba6db"
   },
   "repository": {
     "type": "git",
@@ -26,14 +35,12 @@
   "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "dateformat": "^2.0.0",
     "express": "^4.15.2",
     "leaflet": "^1.0.3",
     "leaflet.markercluster": "^1.0.4",
     "mongoose": "^4.7.1",
     "nunjucks": "^3.0.0",
     "panoptes-client": "^2.5.2",
-    "pusher-client": "^1.1.0",
-    "socket.io": "^1.7.1"
+    "pusher-client": "^1.1.0"
   }
 }

@@ -16,24 +16,24 @@
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <div class="page-header" style="margin: 0px 0 10px;">
-            <h2 style="display:inline-block;" >
-              <img style="display:inline-block;" src="./static/images/globe-icon.png" width="100" height="100" class="img-responsive" alt="Generic placeholder thumbnail">
-              Active Users
+          <div class="page-header">
+            <h2>
+              <img style="display:inline-block;" src="./static/images/globe-icon.png" width="100" height="100" class="img-responsive" alt="Globe icon.">
+              {{title}}
             </h2>
           </div>
           <div class="page-header" style="display:inline-block">
-            <h4 style="display:inline-block; padding-right: 10pt;">Map Key</h4>
-            <span style="font-size: 20px; color: red;"> ☀</span>
-            <span class="text-muted">: New Classification </span>
-            <span style="font-size: 20px; color: rgb(255, 215, 0);"> ☀</span>
-            <span class="text-muted">: New Comment </span>
+            <h4 style="display: inline-block; padding-right: 10pt;">Map Key</h4>
+            <img src="./static/images/classification-icon.svg" style="width: 20px; height: 20px;">
+            <span class="text-muted">: New Classification</span>
+            <img src="./static/images/talk-icon.svg" style="width: 20px; height: 20px;">
+            <span class="text-muted">: New Comment</span>
           </div>
 
           <div id="map"></div>
 
           <h3>Live Comments</h3>
-          <div id="recent-comments" class="col-sm-3 col-sm-offset-9"></div>
+          <hr />
 
           <div id="comment-box"></div>
         </div>
@@ -42,7 +42,6 @@
 {% endblock %}
 
 {% block foot %}
-    <script src="./modules/socket.io-client/dist/socket.io.min.js"></script>
     <script src="./modules/leaflet/dist/leaflet.js"></script>
     <script src="./modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script src="./static/js/active-user-map.js"></script>

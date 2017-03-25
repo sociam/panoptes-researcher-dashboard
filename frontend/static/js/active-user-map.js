@@ -1,46 +1,49 @@
-MARKER_TIMEOUT_MILLIS = 5 * 60 * 1000;  // 5 minutes
+/*
+ * Constants; how many comments and classifications to render
+ */
+var NUM_COMMENTS = 10;
+var NUM_CLASSIFICATIONS = 500;
+var COMMENT_BOX = '#comment-box';
 
 /*
  * Render each comment data object
  */
-function addComment(parent_elem, data) {
-  if (data.thumbnail) {
-    img_url = data.thumbnail;
-  } else {
-    img_url = 'static/images/avatar-small.png';
-  }
+function addComments(parentID, dataArr) {
+  $(parentID).children().each(function (i, elem) {
+    let data = dataArr[i];
 
-  if (data.login) {
-    profile_url = 'https://www.zooniverse.org/users/' + data.login;
-  } else {
-    profile_url = '#';
-  }
+    if (data.user.thumbnail) {
+      img_url = data.user.thumbnail;
+    } else {
+      img_url = 'static/images/avatar-small.png';
+    }
 
-  $(parent_elem).prepend(function () {
-    let elem = document.createElement('div');
+    if (data.user.login) {
+      profile_url = 'https://www.zooniverse.org/users/' + data.user.login;
+    } else {
+      profile_url = '#';
+    }
 
     // ES6 template string
     elem.innerHTML = `
-    <div class="row">
-      <div class="col-sm-10">
-        <div class="col-sm-1">
-          <div class="thumbnail">
-            <a href="${profile_url}" target="_blank">
-              <img class="img-responsive user-photo" src="${img_url}">
-            </a>
-          </div>
+    <div class="col-sm-10">
+      <div class="col-sm-1">
+        <div class="thumbnail">
+          <a href="${profile_url}" target="_blank">
+            <img class="img-responsive user-photo" src="${img_url}">
+          </a>
         </div>
-        <div class="col-sm-10">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <strong><a href="${profile_url}" target="_blank">${data.username}</a></strong>
-              <span class="text-muted small">(On project: <a href="${data.url}" target="_blank">${data.project_id}</a>)</span>
-              <span class="text-muted pull-right">Posted on: ${data.timestamp}</span>
-            </div>
-          <div class="panel-body">
-            <p>${data.body}</p>
-            <a class="small text-muted pull-right" href="${data.url}" target="_blank">(Link to thread)</a>
+      </div>
+      <div class="col-sm-10">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong><a href="${profile_url}" target="_blank">${data.user.username}</a></strong>
+            <span class="text-muted small">(On project: <a href="${data.url}" target="_blank">${data.project_id}</a>)</span>
+            <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
           </div>
+        <div class="panel-body">
+          <p>${data.body}</p>
+          <a class="small text-muted pull-right" href="${data.url}" target="_blank">(Link to thread)</a>
         </div>
       </div>
     </div>`;
@@ -49,41 +52,53 @@ function addComment(parent_elem, data) {
   });
 }
 
-var commentsOrderByDate = [];
-var usersOrderByDate = [];
-var socket = io.connect('//');
-socket.on('userData', function(userData) {
-  // classifications within the last ten minutes (blue)
-  usersOrderByDate = userData; // copy userData into a sortable array
-  usersOrderByDate.sort(function(a,b) {
-    return new Date(a[0].timestamp) - new Date(b[0].timestamp); // sort largest first
+function showLatestComments(numComments, parentID) {
+  $.get('/api/talk/' + numComments, function (data) {
+    let talkIcon = makeIcon('static/images/talk-icon.svg');
+
+    // get comments and render HTML
+    addComments(parentID, data);
+    for (let i = data.length - 1; i >= 0; i-= 1) {
+
+      // draw comment markers on map
+      addMarker(data[i], talkIcon, talkMarkers);
+    }
   });
+}
 
-  for (var count = userData.length - 1; count > -1; count -= 1) {
-    userInfo(usersOrderByDate[count]);
-    drawCustom([userData[count][0].lat, userData[count][0].lng, 0, 191, 255]);
+function showLatestClassifications(numClassifications) {
+  $.get('/api/classifications/' + numClassifications, function (data) {
+    let classificationIcon = makeIcon('static/images/classification-icon.svg');
+    for (let i = 0; i < data.length; i += 1) {
+      addMarker(data[i], classificationIcon, classificationMarkers);
+    }
+  });
+}
+
+function tick() {
+  // clear previous comments, add comment HTML, draw markers
+  let parentID = COMMENT_BOX;
+  talkMarkers.clearLayers();
+  showLatestComments(10, parentID);
+
+  // add classification markers
+  classificationMarkers.clearLayers();
+  showLatestClassifications(500);
+
+  // redraw every minute
+  window.setTimeout(tick, 1000 * 60);
+}
+
+// kick off main loop
+$(document).ready(function () {
+  // on load, draw the correct number of div elements
+  let parentID = COMMENT_BOX;
+  for (let i = 0; i < NUM_COMMENTS; i += 1) {
+    let elem = document.createElement('div');
+    elem.setAttribute('class', 'row');
+    $(parentID).append(elem);
   }
-});
-
-socket.on('panoptes_classifications', function(userData) {
-  // Define Leaflet map icon style for new classifications
-  let classificationIcon = makeIcon('static/images/classification-icon.svg');
-  addMarker(userData, classificationIcon, MARKER_TIMEOUT_MILLIS, markers);
-});
-
-socket.on('panoptes_talk', function(userData) {
-  // Define Leaflet map icon style for new talk
-  let talkIcon = makeIcon('static/images/talk-icon.svg');
-
-  addMarker(userData.latest, talkIcon, MARKER_TIMEOUT_MILLIS);
-
-  // clear previous comments, render new ones
-  let parent_id = '#comment-box';
-  $(parent_id).empty();
-
-  for (let i = 0; i < userData.recent.length; i += 1) {
-    addComment(parent_id, userData.recent[i]);
-  }
+  tick();
 });
 
 /*
@@ -98,28 +113,22 @@ function makeIcon(imagePath) {
   });
 }
 
-function addMarker(data, icon, timeout, group) {
-  let marker = newMarker(data, icon)
+function addMarker(data, icon, group) {
+  let marker = newMarker(data, icon);
 
   if (group !== undefined) {
     group.addLayer(marker);
   } else {
     marker.addTo(map);
   }
-
-  if (timeout !== undefined) {
-    setTimeout(function () {
-      marker.remove();
-    }, timeout);
-  }
 }
 
 function newMarker(data, icon) {
   let text = '';
-  if (data.city !== undefined && data.city.length > 0) {
-    text += data.city + ", ";
+  if (data.geo.city_name !== undefined && data.geo.city_name.length > 0) {
+    text += data.geo.city_name + ", ";
   }
-  text += data.country;
+  text += data.geo.country_name;
 
   let options = {
     icon: icon,
@@ -127,7 +136,10 @@ function newMarker(data, icon) {
     alt: text
   };
 
-  return L.marker([data.lat, data.lng], options).bindPopup(text);
+  return L.marker([
+    data.geo.latitude,
+    data.geo.longitude
+  ], options).bindPopup(text);
 }
 
 var mapCenter = [25, 0];
@@ -138,8 +150,12 @@ var map = L.map('map', {
   center: mapCenter
 });
 
-var markers = L.markerClusterGroup();
-map.addLayer(markers);
+var talkMarkers = L.markerClusterGroup({
+  disableClusteringAtZoom: 1
+});
+map.addLayer(talkMarkers);
+var classificationMarkers = L.markerClusterGroup();
+map.addLayer(classificationMarkers);
 
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors',
