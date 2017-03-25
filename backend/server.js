@@ -42,6 +42,9 @@ let classificationSchema = new mongoose.Schema({
     board_id: Number,
     user_id: Number,
     subject_ids: [Number],
+    subject_urls: [{
+      'image/jpeg': String
+    }],
     geo: {
       country_name: String,
       country_code: String,
@@ -63,7 +66,7 @@ let talkSchema = new mongoose.Schema({
     project_id: Number,
     section: String,
     subject_id: Number,
-    created_at: String,
+    created_at: Date,
     lat: Number,
     lng: Number
   }
