@@ -82,7 +82,8 @@ function updateRecentComments(list, data, io) {
       username: user.display_name,
       url: data.url,
       thumbnail: user.avatar_src,
-      body: data.body
+      body: data.body,
+      subject_id: data.subject_id
     });
 
     if (list.length > MAX_RECENT_COMMENTS_LENGTH) {
