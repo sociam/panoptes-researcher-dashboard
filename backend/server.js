@@ -239,53 +239,6 @@ function saveTalkData(obj, talkModel){
 
 
 /*
- * Functions
- * This function retrieves ALL the pollution data in the collection and streams
- * it to the client.
- */
-function loadHistoricClassificationData(socket, classificationModel){
-  console.log('Loading Historic Classification Data Timeseries');
-
-  let toSend = [];
-  let stream = classificationModel.find().stream();
-  stream.on('data', function (doc) {
-    // do something with the mongoose document
-    let status = JSON.parse(doc.status);
-    toSend.push(status.created_at);
-  }).on('error', function (err) {
-    // handle error
-  }).on('close', function () {
-    // the stream is closed
-    // pre-process timestamps and then send them
-    preprocessTimestamps(toSend, socket);
-    toSend = [];
-  });
-}
-
-
-function preprocessTimestamps(toSend, socket){
-  console.log('sending pre-processed timestamps as historic data');
-  let timestamp_dist = {};
-  let timeseries = [];
-
-  for (let i = 0; i < toSend.length; i++) {
-    let data = toSend[i];
-    let tstamp = Date.parse(data)
-      let timestamp = dateFormat(tstamp, 'yyyy-mm-dd hh:00:00');
-
-    if (timestamp in timestamp_dist) { // TODO: this is bad practice, fix
-      let cnt = timestamp_dist[timestamp];
-      timestamp_dist[timestamp] =cnt + 1
-    } else {
-      timestamp_dist[timestamp] = 1
-    }
-  }
-
-  socket.emit('historic_data', timestamp_dist);
-}
-
-
-/*
  * General pattern for retrieving data and sending to client...
  *   1. Client requests data using a socket pulse
  *   2. Server queries database using stream, sends data to client via socket
