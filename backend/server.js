@@ -87,7 +87,7 @@ function updateRecentComments(list, data, io) {
       url: data.url,
       thumbnail: user.avatar_src,
       body: data.body,
-      subject_id: data.subject_id
+      project_id: data.project_id
     });
 
     if (list.length > MAX_RECENT_COMMENTS_LENGTH) {
@@ -179,6 +179,7 @@ function emitComments(data, io, talkModel) {
     toSend['id'] = data.project_id;
     toSend['lat'] = data.geo.latitude;
     toSend['lng'] = data.geo.longitude;
+    toSend['project_id'] = data.project_id;
     toSend['section'] = data.section;
     toSend['subject_id'] = data.focus_id;
     toSend['url'] = data.url;

@@ -32,7 +32,7 @@ function addComment(parent_elem, data) {
           <div class="panel panel-default">
             <div class="panel-heading">
               <strong><a href="${profile_url}" target="_blank">${data.username}</a></strong>
-              <span class="text-muted small">On subject: <a href="${data.url}" target="_blank">${data.subject_id}</a></span>
+              <span class="text-muted small">(On project: <a href="${data.url}" target="_blank">${data.project_id}</a>)</span>
               <span class="text-muted pull-right">Posted on: ${data.timestamp}</span>
             </div>
           <div class="panel-body">
