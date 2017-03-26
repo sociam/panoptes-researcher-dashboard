@@ -46,6 +46,7 @@ function popularImages(model, since, howMany, callback) {
         $gt: since
       }
     }},
+    { $sort: { 'status.created_at': -1 } },
     { $unwind: '$status.subject_urls' },
     {
       $group: {
@@ -53,15 +54,20 @@ function popularImages(model, since, howMany, callback) {
         count: { $sum: 1 }
       }
     },
-    { $sort: { 'count': -1} },
+    { $sort: { 'count': -1 } },
     { $match: { '_id': { $ne: null } } },
-    { $limit: howMany }
+    { $limit: howMany },
+    { $project: {
+      '_id': false,
+      count: '$count',
+      url: '$_id'
+    } }
   ], function (err, res) {
     if (err) {
       throw err;
     }
 
-    callback(flattenObjects(res));
+    callback(res);
   });
 }
 

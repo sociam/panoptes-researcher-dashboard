@@ -1,6 +1,11 @@
 {% extends "base.njk" %}
 
 {% block head %}
+    <style>
+      .wall {
+        margin: 15px;
+      }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -14,13 +19,13 @@
             </h2>
           </div>
 
-          <div id="image-grid"></div>
+          <div id="freewall"></div>
         </div>
       </div>
     </div>
 {% endblock %}
 
 {% block foot %}
-    <script src="./modules/packery/dist/packery.pkgd.min.js"></script>
+    <script src="./modules/freewall/freewall.js"></script>
     <script src="./static/js/top-images.js"></script>
 {% endblock %}

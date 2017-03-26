@@ -36,6 +36,7 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "express": "^4.15.2",
+    "freewall": "^1.0.8",
     "leaflet": "^1.0.3",
     "leaflet.markercluster": "^1.0.4",
     "mongoose": "^4.7.1",
