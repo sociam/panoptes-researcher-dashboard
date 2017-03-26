@@ -1,5 +1,7 @@
 var mongoose = require('mongoose');
 
+let day = 24 * 60 * 60;
+
 /*
  * Mongoose requires a schema for a database connection.
  * This is then attached to a collection.
@@ -9,7 +11,10 @@ let classificationSchema = new mongoose.Schema({
   status: {
     board_id: Number,
     classification_id: Number,
-    created_at: Date,
+    created_at: {
+      type: Date,
+      expires: day  // delete documents after a day
+    },
     geo: {
       country_name: String,
       country_code: String,
@@ -33,7 +38,10 @@ let talkSchema = new mongoose.Schema({
   status: {
     board_id: Number,
     body: String,
-    created_at: Date,
+    created_at: {
+      type: Date,
+      expires: day
+    },
     discussion_id: Number,
     id: Number,
     geo: {
