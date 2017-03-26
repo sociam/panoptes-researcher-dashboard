@@ -19,8 +19,24 @@ function start(app, paths) {
 
   // set up web interface routes
   app.get('/', function (req, res) {
-    res.render('active-users.njk', {
-      title: 'Active Users Live Feed'
+    res.render('index.njk', {
+      title: 'Panoptes Researcher Dashboard'
+    });
+  });
+
+  app.get('/live', function (req, res) {
+    res.render('live-feed.njk', {
+      title: 'Live Users and Comments'
+    });
+  });
+
+  app.get('/trending', function (req, res) {
+    res.send('Page does not exist yet :-(');
+  });
+
+  app.get('/images', function (req, res) {
+    res.render('top-images.njk', {
+      title: 'Popular Images'
     });
   });
 };
