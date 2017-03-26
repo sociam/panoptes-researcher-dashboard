@@ -23,6 +23,11 @@ let classificationSchema = new mongoose.Schema({
       latitude: Number,
       longitude: Number
     },
+    project: {
+      name: String,
+      slug: String,
+      researcher_id: Number
+    },
     project_id: Number,
     subject_ids: [Number],
     subject_urls: [{

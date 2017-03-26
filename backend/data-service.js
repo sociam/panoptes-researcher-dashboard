@@ -3,18 +3,32 @@ var Pusher = require('pusher-client');
 var panoptesAPI = require('panoptes-client/lib/api-client');
 var models = require('./db-models.js');
 
+function findPanoptesObjectByID(id, apiType, defaultObj, callback) {
+  try {
+    panoptesAPI.type(apiType).get({id: id}).then(callback);
+  } catch (e) {
+    console.error(e);
+    callback(defaultObj);
+  }
+}
+
 function findPanoptesUserByID(data, callback) {
   let id = data.user_id;
-  try {
-    panoptesAPI.type('users').get({id: id}).then(callback);
-  } catch(e) {
-    console.log(e);
-    user = {
-      name: 'Unknown User',
-      thumbnail: null
-    };
-    callback(user);
-  }
+  let userObj = {
+    name: 'Unknown User',
+    thumbnail: null
+  };
+
+  findPanoptesObjectByID(id, 'users', userObj, callback);
+}
+
+function findPanoptesProjectByID(data, callback) {
+  let id = data.project_id;
+  let projObj = {
+    slug: ''
+  };
+
+  findPanoptesObjectByID(id, 'projects', projObj, callback);
 }
 
 function saveData(source, obj, model) {
@@ -51,7 +65,18 @@ function start(db, mongo, pusherSocket) {
   let classificationEvents = socket.subscribe('panoptes');
   classificationEvents.bind('classification',
     function(data) {
-      saveData(mongo.db, data, mdls.classification.model);
+      findPanoptesProjectByID(data, function (projects) {
+        let project = projects[0];
+        let projectInfo = {
+          name: project.display_name,
+          slug: project.slug,
+          researcher_id: project.configuration.researcherID
+        }
+
+        data.project = projectInfo;
+
+        saveData(mongo.db, data, mdls.classification.model);
+      });
     }
   );
 
