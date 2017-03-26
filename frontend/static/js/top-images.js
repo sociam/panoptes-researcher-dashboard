@@ -4,13 +4,17 @@ $(document).ready(function () {
   $.get('/api/images/' + numImages, function (data) {
     let html = '';
     for (var i = 0; i < data.length; i += 1) {
-      let w = 200 + 200 * Math.random() << 0;
+      let w = 150 + (200 * Math.log10(data[i].count) << 0);
       let url = data[i].url;
 
-      console.log(w);
-
       // ES6 template string
-      let temp = `<a href="${url}"><div class="cell" style="width: ${w}px; height: 200px; background-image: url(${url}); background-size: 100%"></div></a>`;
+      let temp = `<a href="${url}">
+          <div class="cell" style="width: ${w}px; background-image: url(${url})">
+            <div class="overlay">
+              <span class="overlay-text">${data[i].count}</span>
+            </div>
+          </div>
+        </a>`;
       html += temp;
     }
 

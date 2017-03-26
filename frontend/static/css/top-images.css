@@ -1,0 +1,36 @@
+.wall {
+    margin: 15px;
+}
+
+.cell {
+    height: 200px;
+    box-shadow: inset 1px 1px 40px 0 rgba(0,0,0,.45);
+    background-size: 100%;
+    border-radius: 5px;
+}
+
+.overlay {
+    height: 100%;
+    box-shadow: inherit;
+    background-size: inherit;
+    border-radius: inherit;
+
+    background: rgba(0, 0, 0, .75);
+    text-align: center;
+    margin: 0 auto;
+    opacity: 0;
+    transition: opacity 1s fade-in-out;
+    -webkit-transition: opacity 1s fade-in-out;
+    -moz-transition: opacity 1s fade-in-out;
+}
+
+.cell:hover .overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    position: relative;
+    top: 40%;
+    color: #FFF;
+    font-size: 30px;
+}
