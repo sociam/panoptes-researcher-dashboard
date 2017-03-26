@@ -1,20 +1,36 @@
 let numImages = 20;
 
+function getThumbURL(imgURL) {
+  let components = imgURL.split('/');
+  let filename = components[components.length - 1];
+  let thumbURL = 'https://thumbnails.zooniverse.org/400x400/panoptes-uploads.zooniverse.org/production/subject_location/' + filename;
+
+  return thumbURL;
+}
+
 $(document).ready(function () {
   $.get('/api/images/' + numImages, function (data) {
     let html = '';
     for (var i = 0; i < data.length; i += 1) {
       let w = 150 + (200 * Math.log10(data[i].count) << 0);
-      let url = data[i].url;
+      let imgURL = getThumbURL(data[i].url);
+      let url = 'https://www.zooniverse.org/projects/' + data[i].project.slug;
 
       // ES6 template string
-      let temp = `<a href="${url}">
-          <div class="cell" style="width: ${w}px; background-image: url(${url})">
+      let temp = `
+        <div class="cell" style="width: ${w}px; background-image: url(${imgURL})">
             <div class="overlay">
-              <span class="overlay-text">${data[i].count}</span>
+              <span class="overlay-text">
+                <a href="${url}", target="_blank">
+                  ${data[i].project.title}
+                </a>
+              </span>
+              <br />
+              <span class="overlay-text fifteen">
+                Activity: ${data[i].count}
+              </span>
             </div>
-          </div>
-        </a>`;
+          </div>`;
       html += temp;
     }
 

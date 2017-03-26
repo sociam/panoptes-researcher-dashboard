@@ -51,7 +51,10 @@ function popularImages(model, since, howMany, callback) {
     {
       $group: {
         _id: '$status.subject_urls.image/jpeg',
-        count: { $sum: 1 }
+        count: { $sum: 1 },
+        name: { $first: '$status.project.name' },
+        slug: { $first: '$status.project.slug' },
+        project_id: { $first: '$status.project_id' }
       }
     },
     { $sort: { 'count': -1 } },
@@ -60,8 +63,12 @@ function popularImages(model, since, howMany, callback) {
     { $project: {
       '_id': false,
       count: '$count',
-      url: '$_id'
-    } }
+      url: '$_id',
+      project: {
+        title: '$name',
+        slug: '$slug'
+      } }
+    }
   ], function (err, res) {
     if (err) {
       throw err;

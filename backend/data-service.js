@@ -46,7 +46,7 @@ function saveData(source, obj, model) {
       }
     });
   } catch(e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
@@ -69,8 +69,7 @@ function start(db, mongo, pusherSocket) {
         let project = projects[0];
         let projectInfo = {
           name: project.display_name,
-          slug: project.slug,
-          researcher_id: project.configuration.researcherID
+          slug: project.slug
         }
 
         data.project = projectInfo;
@@ -93,6 +92,7 @@ function start(db, mongo, pusherSocket) {
         };
 
         data.user = userInfo;
+
         saveData(mongo.db, data, mdls.talk.model);
       });
     }

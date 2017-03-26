@@ -24,13 +24,21 @@
     -moz-transition: opacity 1s fade-in-out;
 }
 
+.overlay a {
+    display: inline;
+}
+
 .cell:hover .overlay {
     opacity: 1;
 }
 
 .overlay-text {
     position: relative;
-    top: 40%;
+    top: 30%;
     color: #FFF;
-    font-size: 30px;
+    font-size: 20px;
+}
+
+.fifteen {
+    font-size: 15px;
 }
