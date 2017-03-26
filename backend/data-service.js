@@ -63,7 +63,6 @@ function start(db, mongo, pusherSocket) {
         let userInfo = {
           login: user.login,
           username: user.display_name,
-          profile: data.url,
           thumbnail: user.avatar_src,
           body: data.body,
         };

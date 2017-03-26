@@ -59,7 +59,6 @@ let talkSchema = new mongoose.Schema({
     url: String,
     user: {
       login: String,
-      profile: String,
       thumbnail: String,
       username: String
     }
