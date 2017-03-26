@@ -67,14 +67,55 @@ function popularImages(model, since, howMany, callback) {
       project: {
         title: '$name',
         slug: '$slug'
-      } }
-    }
+      }
+    } }
   ], function (err, res) {
     if (err) {
       throw err;
     }
 
     callback(res);
+  });
+}
+
+function mostCommentedImages(model, since, howMany, callback) {
+  model.aggregate([
+      { $match: {
+        'status.created_at': {
+          $gt: since
+        }
+      }},
+      { $sort: { 'status.created_at': -1 } },
+      {
+        $group: {
+          _id: '$status.focus_id',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { 'count': -1 } },
+      { $match: { '_id': { $ne: null } } },
+      { $limit: howMany },
+      { $project: {
+        '_id': false,
+        subject_id: '$_id',
+        count: '$count'
+      }
+    }
+  ], function (err, subjects) {
+    if (err) {
+      throw err;
+    }
+
+    for (let i = 0; i < subjects.length; i += 1) {
+      model.find({'status.focus_id': subjects[i].subject_id},
+        function (req, res) {
+          subjects[i].comments = res;
+          if (i == subjects.length - 1) {
+            callback(subjects);
+          }
+        }
+      );
+    }
   });
 }
 
@@ -94,10 +135,16 @@ function start(db, app) {
     recent(mdls.classification.model, oneHourAgo(), numResults, callback);
   });
 
-  app.get('/api/images/:num', function (req, res) {
+  app.get('/api/images/classified/:num', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
     let callback = (result) => res.send(result);
     popularImages(mdls.classification.model, oneHourAgo(), numResults, callback);
+  });
+
+  app.get('/api/images/commented/:num', function (req, res) {
+    let numResults = parsePositiveInteger(req.params.num, 10);
+    let callback = (result) => res.send(result);
+    mostCommentedImages(mdls.talk.model, oneHourAgo(), numResults, callback);
   });
 }
 

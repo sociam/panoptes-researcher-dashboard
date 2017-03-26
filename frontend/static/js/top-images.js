@@ -9,7 +9,7 @@ function getThumbURL(imgURL) {
 }
 
 $(document).ready(function () {
-  $.get('/api/images/' + numImages, function (data) {
+  $.get('/api/images/classified/' + numImages, function (data) {
     let html = '';
     for (var i = 0; i < data.length; i += 1) {
       let w = 200 + (100 * Math.log(data[i].count) * Math.random()) << 0
