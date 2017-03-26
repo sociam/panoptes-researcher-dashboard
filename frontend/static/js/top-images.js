@@ -12,7 +12,7 @@ $(document).ready(function () {
   $.get('/api/images/' + numImages, function (data) {
     let html = '';
     for (var i = 0; i < data.length; i += 1) {
-      let w = 150 + (200 * Math.log10(data[i].count) << 0);
+      let w = 200 + (100 * Math.log(data[i].count) * Math.random()) << 0
       let imgURL = getThumbURL(data[i].url);
       let url = 'https://www.zooniverse.org/projects/' + data[i].project.slug;
 
