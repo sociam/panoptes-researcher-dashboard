@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-let twoHours = 2 * 60 * 60;
+let oneHour = 1 * 60 * 60;
 
 /*
  * Mongoose requires a schema for a database connection.
@@ -13,7 +13,7 @@ let classificationSchema = new mongoose.Schema({
     classification_id: Number,
     created_at: {
       type: Date,
-      expires: twoHours // delete documents after 2 hours
+      expires: oneHour // delete documents after 2 hours
     },
     geo: {
       country_name: String,
@@ -45,7 +45,7 @@ let talkSchema = new mongoose.Schema({
     body: String,
     created_at: {
       type: Date,
-      expires: twoHours
+      expires: oneHour
     },
     discussion_id: Number,
     id: Number,

@@ -10,10 +10,6 @@ function parsePositiveInteger(param, defaultValue) {
   }
 }
 
-function oneHourAgo() {
-  return new Date(new Date().getTime() - (1000 * 60 * 60));
-}
-
 function flattenObjects(arr) {
   let newArr = [];
   for (let i = 0; i < arr.length; i += 1) {
@@ -22,13 +18,8 @@ function flattenObjects(arr) {
   return newArr;
 }
 
-function recent(model, since, howMany, callback) {
+function recent(model, howMany, callback) {
   model.aggregate([
-    { $match: {
-      'status.created_at': {
-        $gt: since
-      }
-    }},
     { $sort: { 'status.created_at': -1 } },
     { $limit: howMany }
   ], function (err, res) {
@@ -39,13 +30,8 @@ function recent(model, since, howMany, callback) {
   });
 }
 
-function popularImages(model, since, howMany, callback) {
+function popularImages(model, howMany, callback) {
   model.aggregate([
-    { $match: {
-      'status.created_at': {
-        $gt: since
-      }
-    }},
     { $sort: { 'status.created_at': -1 } },
     { $unwind: '$status.subject_urls' },
     {
@@ -78,13 +64,8 @@ function popularImages(model, since, howMany, callback) {
   });
 }
 
-function mostCommentedImages(model, since, howMany, callback) {
+function mostCommentedImages(model, howMany, callback) {
   model.aggregate([
-      { $match: {
-        'status.created_at': {
-          $gt: since
-        }
-      }},
       { $sort: { 'status.created_at': -1 } },
       {
         $group: {
@@ -126,25 +107,25 @@ function start(db, app) {
   app.get('/api/talk/:num', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
     let callback = (result) => res.send(result);
-    recent(mdls.talk.model, oneHourAgo(), numResults, callback);
+    recent(mdls.talk.model, numResults, callback);
   });
 
   app.get('/api/classifications/:num', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 100);
     let callback = (result) => res.send(result);
-    recent(mdls.classification.model, oneHourAgo(), numResults, callback);
+    recent(mdls.classification.model, numResults, callback);
   });
 
   app.get('/api/images/classified/:num', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
     let callback = (result) => res.send(result);
-    popularImages(mdls.classification.model, oneHourAgo(), numResults, callback);
+    popularImages(mdls.classification.model, numResults, callback);
   });
 
   app.get('/api/images/commented/:num', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
     let callback = (result) => res.send(result);
-    mostCommentedImages(mdls.talk.model, oneHourAgo(), numResults, callback);
+    mostCommentedImages(mdls.talk.model, numResults, callback);
   });
 }
 
