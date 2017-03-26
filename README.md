@@ -1,51 +1,44 @@
-# panoptes-researcher-dashboard
-A dashboard for the researchers running projects on the Zooniverse Panoptes Citizen Science platform
+# Panoptes Researcher Dashboard
 
-# Design/Functionality 
-Users can access dashboard without being logged in.
-“Home page” - seeing the different available visualisations
-Project selector
+A dashboard for the researchers running projects on the Zooniverse Panoptes
+Citizen Science platform.
 
-## Landing page:
-* V1.0 this will privde a overview of the different visualisations/tools available to the user.
- * a drop down list of projects will be shown, selecting a project will update the streams and UI
-* V2.0 will allow users to log in and configure the panel
- * based on privilidges; will be able to communicate with other users
- * Store previous investigation history. E.g. what threads they have contributed to, how they have chanced.
- 
-## First: tab pane is the current number of active users, including world map
-+ 10 minute window to calculate active users (server side)
-+ When user activity is clicked on (it might be a marker on the map), then more info about that user (if possible) is shown.
+## Software Design
 
+The software is constructed out of several (sort-of) microservices;
 
-## Second: image visualisation for popular talked about images. Tree map which shows the image proportionate to the number of comments it has gained
-* Rollover: 
-  * Not logged in, no identification of image if previously seen
-  * Logged in, notifies the user seen/not seen
-* Click:
-  * Take them to the thread on the Zoo talk page
-  * Storing the event (image/resource) as a personally curated item.
-* Filtering Options:
-  * Comments on Image
-  * Comment rate
- * Image freshness
- * Classification on User 
- * Admin
- * Scientist
+* A data interface layer that listens to events on the Zooniverse platform and
+  streams them into a MongoDB database.
+* An API that provides some REST-esque endpoints that gives the application
+  programmatic access to certain structured data in the database.
+* A small web application framework that generates and serves the dashboard's
+  HTML pages from templates.
 
-## Third: trending Word/hashtags which represent the most talked about strings within the comments
-* List them using a ranked table (combine both hashtags and words). Stop words to be removed.
-* On Click:
- * Use Search API to search for similar images/
-* Filter:
- * All time trends
- * Top rising
- * Temporal slider to identify time window for trending/top words
+### Data interface layer
 
-## Four: research feed: shows what the researchers have been active on.
-* Temporally ordered stream of events including:
- * Commenting
-  *diff
- * (and that’s it for now, folks)
+This simply subscribes to some Pusher streams and then transforms the data into
+a sensible format before indexing it into a MongoDB database.
 
-## Five: Unanswered questions that require attention of researchers/moderators
+### Backend API
+
+The backend API is quite straightforward, and just performs queries on data in
+the database, which can then be shuttled to the web interface or other
+frameworks.
+
+### Web application framework
+
+The application is written entirely in Node.JS and uses the Express web
+framework to serve requests. It uses the `nunjucks` templating engine, which is
+essentially a Node.JS clone of Python's Jinja2.
+
+## Pages
+
+### Live users and comments
+
+Shows real-time geographic activity of users on the platform, plus a list of
+live-streaming comments, users, etc.
+
+### Popular images
+
+Shows a real-time display of the most popular images - that is, images with the
+highest overall activity from users (comments and so forth).
