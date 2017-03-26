@@ -26,6 +26,7 @@ function start(app, paths) {
 
   app.get('/live', function (req, res) {
     res.render('live-feed.njk', {
+      page: 'live',
       title: 'Live Users and Comments'
     });
   });
@@ -36,6 +37,7 @@ function start(app, paths) {
 
   app.get('/images', function (req, res) {
     res.render('top-images.njk', {
+      page: 'images',
       title: 'Popular Images'
     });
   });
