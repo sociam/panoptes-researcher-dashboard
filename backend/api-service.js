@@ -36,10 +36,11 @@ function popularImages(model, howMany, callback) {
     { $unwind: '$status.subject_urls' },
     {
       $group: {
-        _id: '$status.subject_urls.image/jpeg',
+        _id: '$status.subject_urls',
         count: { $sum: 1 },
         name: { $first: '$status.project.name' },
         slug: { $first: '$status.project.slug' },
+        url: { $first: '$status.project.url' },
         project_id: { $first: '$status.project_id' }
       }
     },
@@ -51,9 +52,11 @@ function popularImages(model, howMany, callback) {
       count: '$count',
       url: '$_id',
       project: {
-        title: '$name',
-        slug: '$slug'
-      }
+        name: '$name',
+        slug: '$slug',
+        url: '$url',
+      },
+      project_id: '$project_id'
     } }
   ], function (err, res) {
     if (err) {
@@ -70,16 +73,24 @@ function mostCommentedImages(model, howMany, callback) {
       {
         $group: {
           _id: '$status.focus_id',
-          count: { $sum: 1 }
+          count: { $sum: 1 },
+          project: { $first: '$status.project' },
+          project_id: { $first: '$status.project_id' },
+          thread_url: { $first: '$status.url' },
+          images: { $first: '$status.subject.images' }
         }
       },
       { $sort: { 'count': -1 } },
       { $match: { '_id': { $ne: null } } },
       { $limit: howMany },
       { $project: {
+        count: '$count',
         '_id': false,
+        project: '$project',
+        project_id: '$project_id',
         subject_id: '$_id',
-        count: '$count'
+        thread_url: '$thread_url',
+        images: '$images',
       }
     }
   ], function (err, subjects) {
@@ -87,16 +98,7 @@ function mostCommentedImages(model, howMany, callback) {
       throw err;
     }
 
-    for (let i = 0; i < subjects.length; i += 1) {
-      model.find({'status.focus_id': subjects[i].subject_id},
-        function (req, res) {
-          subjects[i].comments = res;
-          if (i == subjects.length - 1) {
-            callback(subjects);
-          }
-        }
-      );
-    }
+    callback(subjects);
   });
 }
 

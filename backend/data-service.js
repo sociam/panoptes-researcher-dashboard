@@ -11,11 +11,16 @@ renderer.link = function (href, title, text) {
 }
 renderer.image = renderer.link;  // render images as links in the dashboard
 
-function findPanoptesObjectByID(id, apiType, defaultObj, callback) {
+function findPanoptesObjectByID(id, apiType, defaultObj, callback, data) {
   panoptesAPI.type(apiType).get({id: id})
-    .then(callback)
-    .catch(function (e) {
-      console.error(e);
+    .then(function (obj) {
+      if (obj && obj.length > 0) {
+        callback(obj[0]);
+      } else {
+        callback(defaultObj);
+      }
+    }).catch(function (e) {
+      console.error('caught error: ' + e);
       callback(defaultObj);
     });
 }
@@ -26,12 +31,10 @@ function findPanoptesUserByID(data, callback) {
     name: 'Unknown User',
     thumbnail: null
   };
-
   findPanoptesObjectByID(id, 'users', userObj, callback);
 }
 
-function getUserInfo(usersResponse) {
-  let user = usersResponse[0];
+function getUserInfo(user) {
   return {
     login: user.login,
     profile_url: 'https://www.zooniverse.org/users/' + user.login,
@@ -43,20 +46,43 @@ function getUserInfo(usersResponse) {
 function findPanoptesProjectByID(data, callback) {
   let id = data.project_id;
   let projObj = {
-    name: 'Unknown Project',
+    display_name: 'Unknown Project',
     slug: '#',
     url: '#'
   };
-
-  findPanoptesObjectByID(id, 'projects', projObj, callback);
+  findPanoptesObjectByID(id, 'projects', projObj, callback, data);
 }
 
-function getProjectInfo(projectsResponse) {
-  let project = projectsResponse[0];
+function getProjectInfo(project) {
   return {
     name: project.display_name,
     slug: project.slug,
     url: 'https://www.zooniverse.org/projects/' + project.slug
+  };
+}
+
+function findPanoptesSubjectByID(data, callback) {
+  let id = data.focus_id;
+  let subjObj = {};
+  findPanoptesObjectByID(id, 'subjects', subjObj, callback);
+}
+
+function getSubjectInfo(subject) {
+  let images = [];
+  for (let i = 0; i < subject.locations.length; i+= 1) {
+    let image = subject.locations[i];
+    if (image) {
+      for (let key in image) {
+        if (image.hasOwnProperty(key)) {
+          images.push(image[key]);
+        }
+      }
+    }
+  }
+
+  return {
+    images: images.length > 0 ? images : null,
+    created_at: subject.created_at
   };
 }
 
@@ -94,6 +120,21 @@ function start(db, mongo, pusherSocket) {
   let classificationEvents = socket.subscribe('panoptes');
   classificationEvents.bind('classification',
     function(data) {
+
+      // remove pointless image/jpeg or image/png objects from data
+      let images = [];
+      for (let i = 0; i < data.subject_urls.length; i+= 1) {
+        let image = data.subject_urls[i];
+        if (image) {
+          for (let key in image) {
+            if (image.hasOwnProperty(key)) {
+              images.push(image[key]);
+            }
+          }
+        }
+      }
+      data.subject_urls = images;
+
       findPanoptesProjectByID(data, function (projects) {
         data.project = getProjectInfo(projects);
         saveData(mongo.db, data, mdls.classification.model);
@@ -104,12 +145,16 @@ function start(db, mongo, pusherSocket) {
   let commentEvents = socket.subscribe('talk');
   commentEvents.bind('comment',
     function (data) {
+      // TODO: refactor to use ES6 generators, you evil evil person
       data.body_html = marked(data.body, {renderer: renderer});
       findPanoptesUserByID(data, function (users) {
         data.user = getUserInfo(users);
         findPanoptesProjectByID(data, function (projects) {
           data.project = getProjectInfo(projects);
-          saveData(mongo.db, data, mdls.talk.model);
+          findPanoptesSubjectByID(data, function(subjects) {
+            data.subject = getSubjectInfo(subjects);
+            saveData(mongo.db, data, mdls.talk.model);
+          });
         });
       });
     }

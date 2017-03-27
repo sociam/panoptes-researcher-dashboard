@@ -2,6 +2,26 @@ var mongoose = require('mongoose');
 
 let oneHour = 1 * 60 * 60;
 
+let createdAtInfo = {
+  type: Date,
+  expires: oneHour
+};
+
+let geoInfo = {
+  country_name: String,
+  country_code: String,
+  city_name: String,
+  coordinates: [Number],
+  latitude: Number,
+  longitude: Number
+};
+
+let projectInfo = {
+  name: String,
+  slug: String,
+  url: String
+};
+
 /*
  * Mongoose requires a schema for a database connection.
  * This is then attached to a collection.
@@ -11,28 +31,12 @@ let classificationSchema = new mongoose.Schema({
   status: {
     board_id: Number,
     classification_id: Number,
-    created_at: {
-      type: Date,
-      expires: oneHour // delete documents after 2 hours
-    },
-    geo: {
-      country_name: String,
-      country_code: String,
-      city_name: String,
-      coordinates: [Number],
-      latitude: Number,
-      longitude: Number
-    },
-    project: {
-      name: String,
-      slug: String,
-      url: String
-    },
+    created_at: createdAtInfo,
+    geo: geoInfo,
+    project: projectInfo,
     project_id: Number,
     subject_ids: [Number],
-    subject_urls: [{
-      'image/jpeg': String
-    }],
+    subject_urls: [String],
     user_id: Number,
     workflow_id: Number
   }
@@ -44,29 +48,19 @@ let talkSchema = new mongoose.Schema({
     board_id: Number,
     body: String,
     body_html: String,
-    created_at: {
-      type: Date,
-      expires: oneHour
-    },
+    created_at: createdAtInfo,
     discussion_id: Number,
     id: Number,
-    geo: {
-      country_name: String,
-      country_code: String,
-      city_name: String,
-      coordinates: [Number],
-      latitude: Number,
-      longitude: Number
-    },
+    geo: geoInfo,
     focus_id: Number,
     focus_type: String,
-    project: {
-      name: String,
-      slug: String,
-      url: String
-    },
+    project: projectInfo,
     project_id: Number,
     section: String,
+    subject: {
+      images: [String],
+      created_at: Date
+    },
     url: String,
     user: {
       login: String,
