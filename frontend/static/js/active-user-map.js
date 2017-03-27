@@ -18,18 +18,12 @@ function addComments(parentID, dataArr) {
       img_url = 'static/images/avatar-small.png';
     }
 
-    if (data.user.login) {
-      profile_url = 'https://www.zooniverse.org/users/' + data.user.login;
-    } else {
-      profile_url = '#';
-    }
-
     // ES6 template string
     elem.innerHTML = `
     <div class="col-sm-10">
       <div class="col-sm-1">
         <div class="thumbnail">
-          <a href="${profile_url}" target="_blank">
+          <a href="${data.user.profile_url}" target="_blank">
             <img class="img-responsive user-photo" src="${img_url}">
           </a>
         </div>
@@ -37,7 +31,7 @@ function addComments(parentID, dataArr) {
       <div class="col-sm-10">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <strong><a href="${profile_url}" target="_blank">${data.user.username}</a></strong>
+            <strong><a href="${data.user.profile_url}" target="_blank">${data.user.username}</a></strong>
             <span class="text-muted small">(On project: <a href="${data.url}" target="_blank">${data.project_id}</a>)</span>
             <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
           </div>

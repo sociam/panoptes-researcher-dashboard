@@ -22,6 +22,16 @@ function findPanoptesUserByID(data, callback) {
   findPanoptesObjectByID(id, 'users', userObj, callback);
 }
 
+function getUserInfo(usersResponse) {
+  let user = usersResponse[0];
+  return {
+    login: user.login,
+    profile_url: 'https://www.zooniverse.org/users/' + user.login,
+    thumbnail: user.avatar_src,
+    username: user.display_name
+  };
+}
+
 function findPanoptesProjectByID(data, callback) {
   let id = data.project_id;
   let projObj = {
@@ -29,6 +39,15 @@ function findPanoptesProjectByID(data, callback) {
   };
 
   findPanoptesObjectByID(id, 'projects', projObj, callback);
+}
+
+function getProjectInfo(projectsResponse) {
+  let project = projectsResponse[0];
+  return {
+    name: project.display_name,
+    slug: project.slug,
+    url: 'https://www.zooniverse.org/projects/' + project.slug
+  };
 }
 
 function saveData(source, obj, model) {
@@ -66,14 +85,7 @@ function start(db, mongo, pusherSocket) {
   classificationEvents.bind('classification',
     function(data) {
       findPanoptesProjectByID(data, function (projects) {
-        let project = projects[0];
-        let projectInfo = {
-          name: project.display_name,
-          slug: project.slug
-        }
-
-        data.project = projectInfo;
-
+        data.project = getProjectInfo(projects);
         saveData(mongo.db, data, mdls.classification.model);
       });
     }
@@ -83,16 +95,11 @@ function start(db, mongo, pusherSocket) {
   commentEvents.bind('comment',
     function (data) {
       findPanoptesUserByID(data, function (users) {
-        let user = users[0];
-        let userInfo = {
-          login: user.login,
-          username: user.display_name,
-          thumbnail: user.avatar_src
-        };
-
-        data.user = userInfo;
-
-        saveData(mongo.db, data, mdls.talk.model);
+        data.user = getUserInfo(users);
+        findPanoptesProjectByID(data, function (projects) {
+          data.project = getProjectInfo(projects);
+          saveData(mongo.db, data, mdls.talk.model);
+        });
       });
     }
   );

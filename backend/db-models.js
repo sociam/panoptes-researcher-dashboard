@@ -26,7 +26,7 @@ let classificationSchema = new mongoose.Schema({
     project: {
       name: String,
       slug: String,
-      researcher_id: Number
+      url: String
     },
     project_id: Number,
     subject_ids: [Number],
@@ -59,11 +59,17 @@ let talkSchema = new mongoose.Schema({
     },
     focus_id: Number,
     focus_type: String,
+    project: {
+      name: String,
+      slug: String,
+      url: String
+    },
     project_id: Number,
     section: String,
     url: String,
     user: {
       login: String,
+      profile_url: String,
       thumbnail: String,
       username: String
     }

@@ -14,7 +14,7 @@ $(document).ready(function () {
     for (var i = 0; i < data.length; i += 1) {
       let w = 200 + (100 * Math.log(data[i].count) * Math.random()) << 0
       let imgURL = getThumbURL(data[i].url);
-      let url = 'https://www.zooniverse.org/projects/' + data[i].project.slug;
+      let url = data[i].project.url;
 
       // ES6 template string
       let temp = `
