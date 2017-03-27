@@ -6,6 +6,9 @@ var models = require('./db-models.js');  // internal database models
 
 // set up the markdown renderer
 var renderer = new marked.Renderer();
+renderer.link = function (href, title, text) {
+  return `<a href="${href}" title="${title}" target="_blank">${text}</a>`
+}
 renderer.image = renderer.link;  // render images as links in the dashboard
 
 function findPanoptesObjectByID(id, apiType, defaultObj, callback) {
@@ -101,7 +104,7 @@ function start(db, mongo, pusherSocket) {
   let commentEvents = socket.subscribe('talk');
   commentEvents.bind('comment',
     function (data) {
-      data.body_html = marked(data.body);
+      data.body_html = marked(data.body, {renderer: renderer});
       findPanoptesUserByID(data, function (users) {
         data.user = getUserInfo(users);
         findPanoptesProjectByID(data, function (projects) {

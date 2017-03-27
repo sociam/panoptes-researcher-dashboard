@@ -39,6 +39,7 @@
     "freewall": "^1.0.8",
     "leaflet": "^1.0.3",
     "leaflet.markercluster": "^1.0.4",
+    "marked": "^0.3.6",
     "mongoose": "^4.7.1",
     "nunjucks": "^3.0.0",
     "panoptes-client": "^2.5.2",
