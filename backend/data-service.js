@@ -12,12 +12,12 @@ renderer.link = function (href, title, text) {
 renderer.image = renderer.link;  // render images as links in the dashboard
 
 function findPanoptesObjectByID(id, apiType, defaultObj, callback) {
-  try {
-    panoptesAPI.type(apiType).get({id: id}).then(callback);
-  } catch (e) {
-    console.error(e);
-    callback(defaultObj);
-  }
+  panoptesAPI.type(apiType).get({id: id})
+    .then(callback)
+    .catch(function (e) {
+      console.error(e);
+      callback(defaultObj);
+    });
 }
 
 function findPanoptesUserByID(data, callback) {
