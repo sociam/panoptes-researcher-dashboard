@@ -1,8 +1,14 @@
 let numImages = 19;
 let oneMinute = 60 * 1000;
+let projectFilter = -1;
 
 function buildImageWall(numImages) {
-  $.get('/api/images/commented/' + numImages, function (data) {
+  let url = '/api/images/commented/' + numImages;
+  if (projectFilter >= 0) {
+    url += '/' + projectFilter;
+  }
+
+  $.get(url, function (data) {
     let html = '';
     for (let i = 0; i < data.length; i += 1) {
       let w = 200 + (100 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
@@ -59,6 +65,24 @@ function tick() {
   setTimeout(tick, oneMinute);
 }
 
+function parseProjectID(value) {
+  if (value !== undefined && value.length > 0) {
+    try {
+      let projectID = parseInt(value);
+      return projectID >= 0 ? projectID : -1;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return -1;
+}
+
 $(document).ready(function () {
   tick();
+});
+
+$('#project-filter-form').on('submit', function (e) {
+  projectFilter = parseProjectID($('#project-filter').val());
+  buildImageWall(numImages);
+  e.preventDefault();
 });

@@ -27,7 +27,7 @@ function start(app, paths) {
   app.get('/live', function (req, res) {
     res.render('live-feed.njk', {
       page: 'live',
-      title: 'Live Users and Comments'
+      title: 'Live Activity' 
     });
   });
 

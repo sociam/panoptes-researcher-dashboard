@@ -1,16 +1,22 @@
 /*
  * Constants; how many comments and classifications to render
  */
-var NUM_COMMENTS = 10;
-var NUM_CLASSIFICATIONS = 500;
-var COMMENT_BOX = '#comment-box';
+let numComments = 10;
+let numClassifications = 500;
+let commentBox = '#comment-box';
+let projectFilter = -1;
 
 /*
  * Render each comment data object
  */
 function addComments(parentID, dataArr) {
   $(parentID).children().each(function (i, elem) {
-    let data = dataArr[i];
+    if (dataArr[i] == undefined) {
+      elem.innerHTML = '';
+      return;
+    }
+
+    let data = dataArr[i].status;
 
     if (data.user.thumbnail) {
       img_url = data.user.thumbnail;
@@ -50,7 +56,12 @@ function addComments(parentID, dataArr) {
 }
 
 function showLatestComments(numComments, parentID) {
-  $.get('/api/talk/' + numComments, function (data) {
+  let url = '/api/talk/' + numComments;
+  if (projectFilter >= 0) {
+    url += '/' + projectFilter;
+  }
+
+  $.get(url, function (data) {
     let talkIcon = makeIcon('static/images/talk-icon.svg');
 
     // get comments and render HTML
@@ -72,25 +83,41 @@ function showLatestClassifications(numClassifications) {
   });
 }
 
-function tick() {
+function render() {
   // clear previous comments, add comment HTML, draw markers
-  let parentID = COMMENT_BOX;
+  let parentID = commentBox;
   talkMarkers.clearLayers();
   showLatestComments(10, parentID);
 
   // add classification markers
   classificationMarkers.clearLayers();
   showLatestClassifications(500);
+}
+
+function tick() {
+  render();
 
   // redraw every minute
   window.setTimeout(tick, 1000 * 60);
 }
 
+function parseProjectID(value) {
+  if (value !== undefined && value.length > 0) {
+    try {
+      let projectID = parseInt(value);
+      return projectID >= 0 ? projectID : -1;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return -1;
+}
+
 // kick off main loop
 $(document).ready(function () {
   // on load, draw the correct number of div elements
-  let parentID = COMMENT_BOX;
-  for (let i = 0; i < NUM_COMMENTS; i += 1) {
+  let parentID = commentBox;
+  for (let i = 0; i < numComments; i += 1) {
     let elem = document.createElement('div');
     elem.setAttribute('class', 'row');
     $(parentID).append(elem);
@@ -122,6 +149,7 @@ function addMarker(data, icon, group) {
 
 function newMarker(data, icon) {
   let text = '';
+  data = data.status;
   if (data.geo.city_name !== undefined && data.geo.city_name.length > 0) {
     text += data.geo.city_name + ", ";
   }
@@ -157,3 +185,9 @@ map.addLayer(classificationMarkers);
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
+
+$('#project-filter-form').on('submit', function (e) {
+  projectFilter = parseProjectID($('#project-filter').val());
+  render();
+  e.preventDefault();
+});

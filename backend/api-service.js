@@ -10,28 +10,35 @@ function parsePositiveInteger(param, defaultValue) {
   }
 }
 
-function flattenObjects(arr) {
-  let newArr = [];
-  for (let i = 0; i < arr.length; i += 1) {
-    newArr.push(arr[i].status);
+function query(model, pipeline, callback, filter) {
+  if (filter) {
+    pipeline.unshift(filter);
   }
-  return newArr;
-}
 
-function recent(model, howMany, callback) {
-  model.aggregate([
-    { $sort: { 'status.created_at': -1 } },
-    { $limit: howMany }
-  ], function (err, res) {
+  model.aggregate(pipeline, function (err, res) {
     if (err) {
       throw err;
     }
-    callback(flattenObjects(res));
+    callback(res);
   });
 }
 
-function popularImages(model, howMany, callback) {
-  model.aggregate([
+function recent(model, howMany, callback, filter) {
+  let pipeline = [
+    { $sort: { 'status.created_at': -1 } },
+    { $limit: howMany }
+  ];
+
+  let matchFilter = null;
+  if (filter && filter > 0) {
+    matchFilter = { $match: { 'status.project_id': filter } };
+  }
+
+  query(model, pipeline, callback, matchFilter);
+}
+
+function mostClassifiedImages(model, howMany, callback, filter) {
+  let pipeline = [
     { $sort: { 'status.created_at': -1 } },
     { $unwind: '$status.subject_urls' },
     {
@@ -58,17 +65,18 @@ function popularImages(model, howMany, callback) {
       },
       project_id: '$project_id'
     } }
-  ], function (err, res) {
-    if (err) {
-      throw err;
-    }
+  ];
 
-    callback(res);
-  });
+  let matchFilter = null;
+  if (filter && filter > 0) {
+    matchFilter = { $match: { 'status.project_id': filter } };
+  }
+
+  query(model, pipeline, callback, matchFilter);
 }
 
-function mostCommentedImages(model, howMany, callback) {
-  model.aggregate([
+function mostCommentedImages(model, howMany, callback, filter) {
+  let pipeline = [
       { $sort: { 'status.created_at': -1 } },
       {
         $group: {
@@ -93,41 +101,46 @@ function mostCommentedImages(model, howMany, callback) {
         images: '$images',
       }
     }
-  ], function (err, subjects) {
-    if (err) {
-      throw err;
-    }
+  ];
 
-    callback(subjects);
-  });
+  let matchFilter = null;
+  if (filter && filter > 0) {
+    matchFilter = { $match: { 'status.project_id': filter } };
+  }
+
+  query(model, pipeline, callback, matchFilter);
 }
 
 function start(db, app) {
   let mdls = models(db);
 
   // set up app routes
-  app.get('/api/talk/:num', function (req, res) {
+  app.get('/api/talk/:num/:filter*?', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
+    let filter = parsePositiveInteger(req.params.filter, undefined);
     let callback = (result) => res.send(result);
-    recent(mdls.talk.model, numResults, callback);
+    recent(mdls.talk.model, numResults, callback, filter);
   });
 
-  app.get('/api/classifications/:num', function (req, res) {
+  app.get('/api/classifications/:num/:filter*?', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 100);
+    let filter = parsePositiveInteger(req.params.filter, undefined);
     let callback = (result) => res.send(result);
-    recent(mdls.classification.model, numResults, callback);
+    recent(mdls.classification.model, numResults, callback, filter);
   });
 
-  app.get('/api/images/classified/:num', function (req, res) {
+  app.get('/api/images/classified/:num/:filter*?', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
+    let filter = parsePositiveInteger(req.params.filter, undefined);
     let callback = (result) => res.send(result);
-    popularImages(mdls.classification.model, numResults, callback);
+    mostClassifiedImages(mdls.classification.model, numResults, callback, filter);
   });
 
-  app.get('/api/images/commented/:num', function (req, res) {
+  app.get('/api/images/commented/:num/:filter*?', function (req, res) {
     let numResults = parsePositiveInteger(req.params.num, 10);
+    let filter = parsePositiveInteger(req.params.filter, undefined);
     let callback = (result) => res.send(result);
-    mostCommentedImages(mdls.talk.model, numResults, callback);
+    mostCommentedImages(mdls.talk.model, numResults, callback, filter);
   });
 }
 
