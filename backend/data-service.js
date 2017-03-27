@@ -1,7 +1,12 @@
-var express = require('express');
-var Pusher = require('pusher-client');
-var panoptesAPI = require('panoptes-client/lib/api-client');
-var models = require('./db-models.js');
+var express = require('express');  // web server/app
+var marked = require('marked');  // parse MarkDown comments
+var Pusher = require('pusher-client');  // incoming data from Panoptes
+var panoptesAPI = require('panoptes-client/lib/api-client');  // query extra data from Panoptes
+var models = require('./db-models.js');  // internal database models
+
+// set up the markdown renderer
+var renderer = new marked.Renderer();
+renderer.image = renderer.link;  // render images as links in the dashboard
 
 function findPanoptesObjectByID(id, apiType, defaultObj, callback) {
   try {
@@ -35,7 +40,9 @@ function getUserInfo(usersResponse) {
 function findPanoptesProjectByID(data, callback) {
   let id = data.project_id;
   let projObj = {
-    slug: ''
+    name: 'Unknown Project',
+    slug: '#',
+    url: '#'
   };
 
   findPanoptesObjectByID(id, 'projects', projObj, callback);
@@ -94,6 +101,7 @@ function start(db, mongo, pusherSocket) {
   let commentEvents = socket.subscribe('talk');
   commentEvents.bind('comment',
     function (data) {
+      data.body_html = marked(data.body);
       findPanoptesUserByID(data, function (users) {
         data.user = getUserInfo(users);
         findPanoptesProjectByID(data, function (projects) {

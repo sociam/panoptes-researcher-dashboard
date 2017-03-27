@@ -43,6 +43,7 @@ let talkSchema = new mongoose.Schema({
   status: {
     board_id: Number,
     body: String,
+    body_html: String,
     created_at: {
       type: Date,
       expires: oneHour

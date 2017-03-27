@@ -32,11 +32,14 @@ function addComments(parentID, dataArr) {
         <div class="panel panel-default">
           <div class="panel-heading">
             <strong><a href="${data.user.profile_url}" target="_blank">${data.user.username}</a></strong>
-            <span class="text-muted small">(On project: <a href="${data.url}" target="_blank">${data.project_id}</a>)</span>
+            <span class="text-muted small">
+              (Project ${data.project_id} -
+              <a href="${data.project.url}" target="_blank">${data.project.name}</a>)
+            </span>
             <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
           </div>
         <div class="panel-body">
-          <p>${data.body}</p>
+          <p>${data.body_html}</p>
           <a class="small text-muted pull-right" href="${data.url}" target="_blank">(Link to thread)</a>
         </div>
       </div>
