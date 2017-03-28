@@ -69,12 +69,14 @@ function findPanoptesSubjectByID(data, callback) {
 
 function getSubjectInfo(subject) {
   let images = [];
-  for (let i = 0; i < subject.locations.length; i+= 1) {
-    let image = subject.locations[i];
-    if (image) {
-      for (let key in image) {
-        if (image.hasOwnProperty(key)) {
-          images.push(image[key]);
+  if (subject.locations) {
+    for (let i = 0; i < subject.locations.length; i+= 1) {
+      let image = subject.locations[i];
+      if (image) {
+        for (let key in image) {
+          if (image.hasOwnProperty(key)) {
+            images.push(image[key]);
+          }
         }
       }
     }
