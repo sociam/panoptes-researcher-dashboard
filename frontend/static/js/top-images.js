@@ -8,7 +8,7 @@ function buildImageWall(numImages) {
     url += '/' + projectFilter;
   }
 
-  $.get(url, function (data) {
+  g$.get(url, function (data) {
     let html = '';
     for (let i = 0; i < data.length; i += 1) {
       let w = 250 + (125 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
@@ -58,7 +58,30 @@ function buildImageWall(numImages) {
     wall.fitWidth();
 
     $(window).trigger('resize');
+    setViewedStatus();
   });
+}
+
+function setVisibilityListeners() {
+  $('#freewall').on('click', 'a[href*="/talk/"]', function(event) {
+    const clickedUrl = $(this).attr('href');
+    const viewedUrls = JSON.parse(localStorage.getItem('viewedUrls')) || [];
+    viewedUrls.push(clickedUrl);
+    localStorage.setItem('viewedUrls', JSON.stringify(viewedUrls));
+    setViewedStatus();
+  });
+}
+
+function setViewedStatus() {
+  const viewedUrls = JSON.parse(localStorage.getItem('viewedUrls'));
+  if (viewedUrls && viewedUrls.length) {
+    const wall = $('#freewall');
+    viewedUrls.forEach(url => {
+      const urlCell = wall.find(`a[href="${url}"]`).closest('.cell');
+      const icon = urlCell.children('.glyphicon');
+      icon.css({ visibility: 'visible' });
+    });
+  }
 }
 
 function tick() {
@@ -80,6 +103,7 @@ function parseProjectID(value) {
 
 $(document).ready(function () {
   tick();
+  setVisibilityListeners();
 });
 
 $('#project-filter-form').on('submit', function (e) {
