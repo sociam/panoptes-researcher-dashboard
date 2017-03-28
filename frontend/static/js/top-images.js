@@ -8,7 +8,7 @@ function buildImageWall(numImages) {
     url += '/' + projectFilter;
   }
 
-  g$.get(url, function (data) {
+  $.get(url, function (data) {
     let html = '';
     for (let i = 0; i < data.length; i += 1) {
       let w = 250 + (125 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
