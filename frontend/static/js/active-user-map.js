@@ -75,7 +75,12 @@ function showLatestComments(numComments, parentID) {
 }
 
 function showLatestClassifications(numClassifications) {
-  $.get('/api/classifications/' + numClassifications, function (data) {
+  let url = '/api/classifications/' + numClassifications;
+  if (projectFilter >= 0) {
+    url += '/' + projectFilter;
+  }
+
+  $.get(url, function (data) {
     let classificationIcon = makeIcon('static/images/classification-icon.svg');
     for (let i = 0; i < data.length; i += 1) {
       addMarker(data[i], classificationIcon, classificationMarkers);
