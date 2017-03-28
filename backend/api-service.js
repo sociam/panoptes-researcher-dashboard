@@ -39,16 +39,19 @@ function recent(model, howMany, callback, filter) {
 
 function mostClassifiedImages(model, howMany, callback, filter) {
   let pipeline = [
+    { $lookup: {
+      from: 'projects',
+      localField: 'status.project_id',
+      foreignField: 'status.id',
+      as: 'projects' } },
     { $sort: { 'status.created_at': -1 } },
     { $unwind: '$status.subject_urls' },
     {
       $group: {
         _id: '$status.subject_urls',
         count: { $sum: 1 },
-        name: { $first: '$status.project.name' },
-        slug: { $first: '$status.project.slug' },
-        url: { $first: '$status.project.url' },
-        project_id: { $first: '$status.project_id' }
+        project_id: { $first: '$status.project_id' },
+        projects: { $first: '$projects' }
       }
     },
     { $sort: { 'count': -1 } },
@@ -58,11 +61,7 @@ function mostClassifiedImages(model, howMany, callback, filter) {
       '_id': false,
       count: '$count',
       url: '$_id',
-      project: {
-        name: '$name',
-        slug: '$slug',
-        url: '$url',
-      },
+      projects: '$projects',
       project_id: '$project_id'
     } }
   ];
@@ -77,12 +76,17 @@ function mostClassifiedImages(model, howMany, callback, filter) {
 
 function mostCommentedImages(model, howMany, callback, filter) {
   let pipeline = [
+    { $lookup: {
+      from: 'projects',
+      localField: 'status.project_id',
+      foreignField: 'status.id',
+      as: 'projects' } },
       { $sort: { 'status.created_at': -1 } },
       {
         $group: {
           _id: '$status.focus_id',
           count: { $sum: 1 },
-          project: { $first: '$status.project' },
+          projects: { $first: '$projects' },
           project_id: { $first: '$status.project_id' },
           thread_url: { $first: '$status.url' },
           images: { $first: '$status.subject.images' }
@@ -94,7 +98,7 @@ function mostCommentedImages(model, howMany, callback, filter) {
       { $project: {
         count: '$count',
         '_id': false,
-        project: '$project',
+        project: '$projects',
         project_id: '$project_id',
         subject_id: '$_id',
         thread_url: '$thread_url',

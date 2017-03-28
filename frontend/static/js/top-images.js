@@ -15,7 +15,7 @@ function buildImageWall(numImages) {
 
       let imgURL = data[i].images[0];
       let threadURL = data[i].thread_url.split('?')[0];
-      let url = data[i].project.url;
+      let url = data[i].project[0].status.url;
 
       // ES6 template string
       let temp = `
@@ -25,7 +25,7 @@ function buildImageWall(numImages) {
             <br/>
             <div class="overlay-text">
               <a href="${url}" target="_blank">
-                ${data[i].project.name}
+                ${data[i].project[0].status.name}
               </a>
 
               <br/>

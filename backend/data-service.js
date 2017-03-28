@@ -11,6 +11,20 @@ renderer.link = function (href, title, text) {
 }
 renderer.image = renderer.link;  // render images as links in the dashboard
 
+function isDocInMongo(model, field, id, fetchDocFunc) {
+  query = {};
+  query[field] = id;
+  model.find(query, function (err, docs) {
+    if (err) {
+      throw err;
+    }
+
+    if (docs.length == 0) {
+      fetchDocFunc(id);
+    }
+  });
+}
+
 function findPanoptesObjectByID(id, apiType, defaultObj, callback, data) {
   panoptesAPI.type(apiType).get({id: id})
     .then(function (obj) {
@@ -43,22 +57,34 @@ function getUserInfo(user) {
   };
 }
 
-function findPanoptesProjectByID(data, callback) {
-  let id = data.project_id;
-  let projObj = {
-    display_name: 'Unknown Project',
-    slug: '#',
-    url: '#'
-  };
-  findPanoptesObjectByID(id, 'projects', projObj, callback, data);
+function getPanoptesProjectByID(mongo, model, id, callback) {
+  isDocInMongo(model, 'status.id', id,
+    function (id) {
+      panoptesAPI.type('projects').get({id: id})
+        .then(function (projs) {
+          if (projs && projs.length > 0 && projs[0]) {
+            saveData(mongo.db, getProjectInfo(projs[0]), model);
+
+            if (callback) {
+              callback(projs[0]);
+            }
+          }
+        }).catch(function (e) {
+          console.error('caught error: ' + e);
+        });
+    }
+  );
 }
 
 function getProjectInfo(project) {
-  return {
+  let info = {
+    id: project.id,
     name: project.display_name,
     slug: project.slug,
     url: 'https://www.zooniverse.org/projects/' + project.slug
   };
+
+  return info;
 }
 
 function findPanoptesSubjectByID(data, callback) {
@@ -98,8 +124,11 @@ function saveData(source, obj, model) {
 
     doc.save(function(e, doc) {
       if (e) {
-        console.error('error indexing document: ' + JSON.stringify(doc));
-        throw e;
+        // ignore duplicate key errors
+        if (! e.message.startsWith('E11000 duplicate key error')) {  
+          console.error('error indexing document: ' + JSON.stringify(doc));
+          throw e;
+        }
       }
     });
   } catch(e) {
@@ -122,7 +151,6 @@ function start(db, mongo, pusherSocket) {
   let classificationEvents = socket.subscribe('panoptes');
   classificationEvents.bind('classification',
     function(data) {
-
       // remove pointless image/jpeg or image/png objects from data
       let images = [];
       for (let i = 0; i < data.subject_urls.length; i+= 1) {
@@ -135,28 +163,23 @@ function start(db, mongo, pusherSocket) {
           }
         }
       }
-      data.subject_urls = images;
 
-      findPanoptesProjectByID(data, function (projects) {
-        data.project = getProjectInfo(projects);
-        saveData(mongo.db, data, mdls.classification.model);
-      });
+      data.subject_urls = images;
+      saveData(mongo.db, data, mdls.classification.model);
+      getPanoptesProjectByID(mongo, mdls.project.model, data.project_id);
     }
   );
 
   let commentEvents = socket.subscribe('talk');
   commentEvents.bind('comment',
     function (data) {
-      // TODO: refactor to use ES6 generators, you evil evil person
       data.body_html = marked(data.body, {renderer: renderer});
       findPanoptesUserByID(data, function (users) {
         data.user = getUserInfo(users);
-        findPanoptesProjectByID(data, function (projects) {
-          data.project = getProjectInfo(projects);
-          findPanoptesSubjectByID(data, function(subjects) {
-            data.subject = getSubjectInfo(subjects);
-            saveData(mongo.db, data, mdls.talk.model);
-          });
+        findPanoptesSubjectByID(data, function (subjects) {
+          data.subject = getSubjectInfo(subjects);
+          getPanoptesProjectByID(mongo, mdls.project.model, data.project_id);
+          saveData(mongo.db, data, mdls.talk.model);
         });
       });
     }

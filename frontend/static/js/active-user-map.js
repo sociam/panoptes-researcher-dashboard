@@ -17,6 +17,7 @@ function addComments(parentID, dataArr) {
     }
 
     let data = dataArr[i].status;
+    console.log(dataArr[i]);
 
     if (data.user.thumbnail) {
       img_url = data.user.thumbnail;
@@ -39,8 +40,7 @@ function addComments(parentID, dataArr) {
           <div class="panel-heading">
             <strong><a href="${data.user.profile_url}" target="_blank">${data.user.username}</a></strong>
             <span class="text-muted small">
-              (Project ${data.project_id} -
-              <a href="${data.project.url}" target="_blank">${data.project.name}</a>)
+              (Project ${data.project_id})
             </span>
             <span class="text-muted pull-right">Posted on: ${data.created_at}</span>
           </div>

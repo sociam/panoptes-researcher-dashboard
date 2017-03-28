@@ -4,7 +4,8 @@ let oneHour = 1 * 60 * 60;
 
 let createdAtInfo = {
   type: Date,
-  expires: oneHour
+  expires: null,
+  default: Date.now
 };
 
 let geoInfo = {
@@ -16,11 +17,6 @@ let geoInfo = {
   longitude: Number
 };
 
-let projectInfo = {
-  name: String,
-  slug: String,
-  url: String
-};
 
 /*
  * Mongoose requires a schema for a database connection.
@@ -33,7 +29,6 @@ let classificationSchema = new mongoose.Schema({
     classification_id: Number,
     created_at: createdAtInfo,
     geo: geoInfo,
-    project: projectInfo,
     project_id: Number,
     subject_ids: [Number],
     subject_urls: [String],
@@ -42,19 +37,32 @@ let classificationSchema = new mongoose.Schema({
   }
 });
 
+let projectSchema = new mongoose.Schema({
+  source: String,
+  status: {
+    id: {
+      type: Number,
+      unique: true
+    },
+    created_at: createdAtInfo,
+    name: String,
+    slug: String,
+    url: String
+  }
+});
+
 let talkSchema = new mongoose.Schema({
   source: String,
   status: {
+    id: Number,
     board_id: Number,
     body: String,
     body_html: String,
     created_at: createdAtInfo,
     discussion_id: Number,
-    id: Number,
     geo: geoInfo,
     focus_id: Number,
     focus_type: String,
-    project: projectInfo,
     project_id: Number,
     section: String,
     subject: {
@@ -71,23 +79,19 @@ let talkSchema = new mongoose.Schema({
   }
 });
 
-function talkModel(db) {
-  return db.model('talk', talkSchema);
-}
-
-function classificationModel(db) {
-  return db.model('classifications', classificationSchema);
-}
-
 module.exports = function (db) {
   return {
     classification: {
       schema: classificationSchema,
-      model: classificationModel(db)
+      model: db.model('classifications', classificationSchema)
     },
     talk: {
       schema: talkSchema,
-      model: talkModel(db)
+      model: db.model('talks', talkSchema)
+    },
+    project: {
+      schema: projectSchema,
+      model: db.model('projects', projectSchema)
     }
   };
 }
