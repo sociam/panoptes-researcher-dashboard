@@ -30,7 +30,10 @@
     position: absolute;
     font-size: 40px;
 
-    color: white;
+    background: white;
+    padding: 2px;
+    border-radius: 4px;
+    color: #4F8A10;
     margin-top: 10px;
     margin-left: 10px;
 }
