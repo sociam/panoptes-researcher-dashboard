@@ -11,7 +11,7 @@ function buildImageWall(numImages) {
   $.get(url, function (data) {
     let html = '';
     for (let i = 0; i < data.length; i += 1) {
-      let w = 200 + (100 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
+      let w = 250 + (125 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
 
       let imgURL = data[i].images[0];
       let threadURL = data[i].thread_url.split('?')[0];
@@ -20,23 +20,24 @@ function buildImageWall(numImages) {
       // ES6 template string
       let temp = `
         <div class="cell" style="width: ${w}px; background-image: url(${imgURL})">
-        <div class="overlay">
-        <span class="overlay-text">
-        <a href="${url}" target="_blank">
-        ${data[i].project.name}
-      </a>
-        </span>
-        <br/>
-        <span class="overlay-text fifteen">
-        Project ID: ${data[i].project_id}
-      </span>
-        <br/>
-        <span class="overlay-text fifteen">
-        <a href="${threadURL}" target="_blank">
-        Comments: ${data[i].count}
-      </a>
-        </span>
-        </div>
+          <span class="glyphicon glyphicon-ok-circle tick pull-right"></span>
+          <div class="overlay">
+            <br/>
+            <div class="overlay-text">
+              <a href="${url}" target="_blank">
+                ${data[i].project.name}
+              </a>
+
+              <br/>
+              <span class="fifteen">
+                Project ID: ${data[i].project_id}
+                </br>
+                <a href="${threadURL}" target="_blank">
+                  Comments: ${data[i].count}
+                </a>
+              </span>
+            </div>
+          </div>
         </div>`;
       html += temp;
     }

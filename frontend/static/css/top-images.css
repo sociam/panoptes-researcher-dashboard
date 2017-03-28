@@ -3,7 +3,7 @@
 }
 
 .cell {
-    height: 200px;
+    height: 250px;
     box-shadow: inset 1px 1px 40px 0 rgba(0,0,0,.45);
     background-size: 100%;
     border-radius: 5px;
@@ -24,6 +24,17 @@
     -moz-transition: opacity 1s fade-in-out;
 }
 
+.tick {
+    display: block;
+    visibility: hidden;
+    position: absolute;
+    font-size: 40px;
+
+    color: white;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
 .overlay a {
     display: inline;
 }
@@ -34,7 +45,7 @@
 
 .overlay-text {
     position: relative;
-    top: 30%;
+    top: 20%;
     color: #FFF;
     font-size: 20px;
 }
