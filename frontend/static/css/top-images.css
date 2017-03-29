@@ -1,0 +1,58 @@
+.wall {
+    margin: 15px;
+}
+
+.cell {
+    height: 250px;
+    box-shadow: inset 1px 1px 40px 0 rgba(0,0,0,.45);
+    background-size: 100%;
+    border-radius: 5px;
+}
+
+.overlay {
+    height: 100%;
+    box-shadow: inherit;
+    background-size: inherit;
+    border-radius: inherit;
+
+    background: rgba(0, 0, 0, .75);
+    text-align: center;
+    margin: 0 auto;
+    opacity: 0;
+    transition: opacity 1s fade-in-out;
+    -webkit-transition: opacity 1s fade-in-out;
+    -moz-transition: opacity 1s fade-in-out;
+}
+
+.tick {
+    display: block;
+    visibility: hidden;
+    position: absolute;
+    font-size: 40px;
+
+    background: white;
+    padding: 2px;
+    border-radius: 4px;
+    color: #4F8A10;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.overlay a {
+    display: inline;
+}
+
+.cell:hover .overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    position: relative;
+    top: 20%;
+    color: #FFF;
+    font-size: 20px;
+}
+
+.fifteen {
+    font-size: 15px;
+}

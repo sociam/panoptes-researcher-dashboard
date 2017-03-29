@@ -1,0 +1,48 @@
+{
+  "name": "panoptes-researcher-dashboard",
+  "version": "0.0.1",
+  "description": "A dashboard of useful tools to aid researchers using the Zooniverse citizen science platform.",
+  "main": "index.js",
+  "engines": {
+    "node": "7.6.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=\"production\" node ./run.js"
+  },
+  "config": {
+    "port": 8080,
+    "paths": {
+      "modules": "node_modules",
+      "static": "frontend/static",
+      "templates": "frontend/templates"
+    },
+    "mongo": {
+      "host": "localhost",
+      "db": "zoo_panoptes"
+    },
+    "pusher_socket": "79e8e05ea522377ba6db"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlienewey/panoptes-researcher-dashboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charlienewey/panoptes-researcher-dashboard/issues"
+  },
+  "homepage": "https://github.com/charlienewey/panoptes-researcher-dashboard#readme",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "express": "^4.15.2",
+    "freewall": "^1.0.8",
+    "leaflet": "^1.0.3",
+    "leaflet.markercluster": "^1.0.4",
+    "marked": "^0.3.6",
+    "mongoose": "^4.7.1",
+    "nunjucks": "^3.0.0",
+    "panoptes-client": "2.5.2",
+    "pusher-client": "^1.1.0"
+  }
+}

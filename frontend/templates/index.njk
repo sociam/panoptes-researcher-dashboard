@@ -1,0 +1,31 @@
+{% extends "base.njk" %}
+
+{% block body %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <div class="col-xs-6 col-sm-4 placeholder">
+            <a href="/live">
+            <img src="/static/images/globe-icon.png" width="150" height="150" class="img-responsive" alt="Active users page icon">
+            <h4>Live Users and Comments</h4>
+            </a>
+            <span class="text-muted">(last hour)</span>
+          </div>
+          <div class="col-xs-6 col-sm-4 placeholder">
+            <a href="/trending">
+            <img src="/static/images/word-cloud.png" width="150" height="150" class="img-responsive" alt="Trending words page icon">
+            <h4>Trending Words/Hashtags</h4>
+            </a>
+            <span class="text-muted">Most popular topics posted in comments</span>
+          </div>
+          <div class="col-xs-6 col-sm-4 placeholder">
+            <a href="/images">
+            <img src="/static/images/images-icon.png" width="150" height="150" class="img-responsive" alt="Popular images page icon">
+            <h4>Popular Images</h4>
+            </a>
+            <span class="text-muted">Most popular images</span>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
