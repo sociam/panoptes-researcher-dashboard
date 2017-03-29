@@ -125,7 +125,7 @@ function saveData(source, obj, model) {
     doc.save(function(e, doc) {
       if (e) {
         // ignore duplicate key errors
-        if (! e.message.startsWith('E11000 duplicate key error')) {  
+        if (! e.message.startsWith('E11000 duplicate key error')) {
           console.error('error indexing document: ' + JSON.stringify(doc));
           throw e;
         }

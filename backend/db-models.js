@@ -26,7 +26,10 @@ let classificationSchema = new mongoose.Schema({
   source: String,
   status: {
     board_id: Number,
-    classification_id: Number,
+    classification_id: {
+      type: Number,
+      unique: true
+    },
     created_at: createdAtInfo,
     geo: geoInfo,
     project_id: Number,
@@ -54,7 +57,10 @@ let projectSchema = new mongoose.Schema({
 let talkSchema = new mongoose.Schema({
   source: String,
   status: {
-    id: Number,
+    id: {
+      type: Number,
+      unique: true
+    },
     board_id: Number,
     body: String,
     body_html: String,
@@ -83,15 +89,15 @@ module.exports = function (db) {
   return {
     classification: {
       schema: classificationSchema,
-      model: db.model('classifications', classificationSchema)
+      model: db.model('zooClassifications', classificationSchema)
     },
     talk: {
       schema: talkSchema,
-      model: db.model('talks', talkSchema)
+      model: db.model('zooTalks', talkSchema)
     },
     project: {
       schema: projectSchema,
-      model: db.model('projects', projectSchema)
+      model: db.model('zooProjects', projectSchema)
     }
   };
 }
