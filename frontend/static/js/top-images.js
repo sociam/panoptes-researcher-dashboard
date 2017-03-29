@@ -11,7 +11,11 @@ function buildImageWall(numImages) {
   $.get(url, function (data) {
     let html = '';
     for (let i = 0; i < data.length; i += 1) {
-      let w = 250 + (125 * (4 * Math.log(data[i].count)) * Math.random()) << 0;
+      if (! data[i] || ! data[i].images) {
+        continue;
+      }
+
+      let w = 250 + (125 * Math.log(data[i].count)) << 0;
 
       let imgURL = data[i].images[0];
       let threadURL = data[i].thread_url.split('?')[0];
@@ -47,7 +51,7 @@ function buildImageWall(numImages) {
 
     wall.reset({
       selector: '.cell',
-      animate: true,
+      animate: false,
       cellW: 20,
       cellH: 200,
       onResize: function() {
@@ -86,7 +90,7 @@ function setViewedStatus() {
 
 function tick() {
   buildImageWall(numImages);
-  setTimeout(tick, oneMinute);
+  setTimeout(tick, 30 * 1000);
 }
 
 function parseProjectID(value) {

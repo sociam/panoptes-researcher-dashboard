@@ -103,7 +103,7 @@ function tick() {
   render();
 
   // redraw every minute
-  window.setTimeout(tick, 1000 * 60);
+  window.setTimeout(tick, 20 * 1000);
 }
 
 function parseProjectID(value) {
