@@ -89,15 +89,15 @@ module.exports = function (db) {
   return {
     classification: {
       schema: classificationSchema,
-      model: db.model('zooClassifications', classificationSchema)
+      model: db.model('classifications', classificationSchema)
     },
     talk: {
       schema: talkSchema,
-      model: db.model('zooTalks', talkSchema)
+      model: db.model('talks', talkSchema)
     },
     project: {
       schema: projectSchema,
-      model: db.model('zooProjects', projectSchema)
+      model: db.model('projects', projectSchema)
     }
   };
 }
