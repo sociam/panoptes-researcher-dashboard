@@ -17,8 +17,6 @@ function addComments(parentID, dataArr) {
     }
 
     let data = dataArr[i].status;
-    console.log(dataArr[i]);
-
     if (data.user.thumbnail) {
       img_url = data.user.thumbnail;
     } else {
